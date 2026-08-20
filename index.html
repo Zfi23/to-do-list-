@@ -3,171 +3,260 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>React To-Do List</title>
+    <title>Smart React Planner</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    
+    <!-- خط لطيف -->
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* --- إعادة التصميم الأنيق --- */
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+        /* ===== متغيرات الألوان ===== */
+        :root {
+            --bg-light: #FFF3E3;       /* صباح / نهار */
+            --bg-dark: #1A153A;        /* ليل */
+            --text-light: #5C4D4D;
+            --text-dark: #E6DFED;
+            --primary: #7B61FF;        /* بنفسجي ساحر */
+            --glass-white: rgba(255, 255, 255, 0.4);
+            --glass-dark: rgba(30, 20, 50, 0.6);
+            --shadow-light: 0 15px 35px rgba(123, 97, 255, 0.15);
+            --shadow-dark: 0 15px 35px rgba(0, 0, 0, 0.5);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; transition: all 0.3s ease; }
 
         body {
-            /* خلفية كريمية ناعمة */
-            background: linear-gradient(135deg, #F9F6F0 0%, #F0EBE3 100%);
             min-height: 100vh;
-            display: flex; justify-content: center; padding: 40px 20px;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px;
+            background-color: var(--bg-light);
+            color: var(--text-light);
+            /* سيتم تغيير الألوان ديناميكياً عبر JS */
         }
 
-        .app-container {
-            max-width: 500px; width: 100%;
-            background: rgba(255, 255, 255, 0.7);
+        .glass-container {
+            width: 100%; max-width: 750px;
+            background: var(--glass-white);
             backdrop-filter: blur(15px);
-            border-radius: 30px; padding: 30px;
-            box-shadow: 0 10px 40px rgba(91, 74, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 40px; padding: 30px;
+            box-shadow: var(--shadow-light);
+            border: 1px solid rgba(255,255,255,0.6);
+            position: relative; z-index: 10;
+            transition: background 0.5s, box-shadow 0.5s, color 0.5s;
         }
 
-        h1 {
-            text-align: center; color: #5B4AFF; font-size: 26px;
-            margin-bottom: 25px; font-weight: 600; letter-spacing: 1px;
+        h1 { text-align: center; font-size: 28px; margin-bottom: 25px; color: var(--primary); }
+        
+        /* ===== البحث / الإدخال ===== */
+        .input-group {
+            display: flex; gap: 12px; margin-bottom: 30px; flex-wrap: wrap;
         }
-
-        .input-area {
-            display: flex; gap: 12px; margin-bottom: 30px;
+        .input-group input {
+            flex: 1; padding: 15px 20px; border-radius: 30px;
+            border: 2px solid rgba(123, 97, 255, 0.3);
+            background: rgba(255,255,255,0.6);
+            outline: none; font-size: 16px; color: inherit; min-width: 150px;
         }
-
-        .input-area input {
-            flex: 1; padding: 14px 20px;
-            border: 2px solid rgba(91, 74, 255, 0.2);
-            border-radius: 50px; outline: none;
-            background: rgba(255, 255, 255, 0.8);
-            backdrop-filter: blur(5px);
-            font-size: 14px; transition: 0.3s;
+        .input-group input:focus {
+            border-color: var(--primary); box-shadow: 0 0 15px rgba(123, 97, 255, 0.3);
         }
-
-        .input-area input:focus {
-            border-color: #5B4AFF;
-            background: rgba(255, 255, 255, 0.95);
-            box-shadow: 0 0 15px rgba(91, 74, 255, 0.1);
+        .input-group button {
+            padding: 15px 30px; background: var(--primary); color: white;
+            border: none; border-radius: 30px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 5px 15px rgba(123, 97, 255, 0.3); transition: 0.3s;
         }
+        .input-group button:hover { transform: scale(1.05); }
 
-        .input-area button {
-            padding: 14px 30px;
-            background: #5B4AFF; color: white;
-            border: none; border-radius: 50px;
-            cursor: pointer; font-weight: 600; font-size: 14px;
-            transition: 0.3s; box-shadow: 0 4px 15px rgba(91, 74, 255, 0.3);
+        /* ===== العمودين ===== */
+        .columns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
         }
+        .col-title { font-size: 14px; font-weight: 600; opacity: 0.6; margin-bottom: 10px; display: block; text-align: center; }
 
-        .input-area button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(91, 74, 255, 0.4);
-        }
-
-        .task-list { display: flex; flex-direction: column; gap: 12px; }
-
-        .task-item {
+        /* ===== بطاقات المهام ===== */
+        .task-card {
+            background: rgba(255,255,255,0.7); border-radius: 16px;
+            padding: 15px; margin-bottom: 12px;
             display: flex; justify-content: space-between; align-items: center;
-            padding: 16px 20px; background: #FFFFFF;
-            border-radius: 16px;
-            box-shadow: 0 4px 15px rgba(91, 74, 255, 0.06);
-            transition: 0.2s; border: 1px solid rgba(0,0,0,0.03);
+            box-shadow: 0 5px 10px rgba(0,0,0,0.02);
+            border: 1px solid transparent; transition: 0.3s;
+            cursor: pointer;
+        }
+        .task-card:hover {
+            border-color: var(--primary); transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(123, 97, 255, 0.1);
+        }
+        .task-card .text { font-size: 15px; font-weight: 600; }
+        .task-card .delete-btn {
+            background: transparent; border: none; font-size: 18px;
+            color: #ff6b6b; cursor: pointer; transition: 0.3s;
+        }
+        .task-card .delete-btn:hover { transform: rotate(90deg) scale(1.2); }
+
+        /* علامة التوهج (Neon Glow) عند الإضافة */
+        .task-card.just-added {
+            animation: neonPulse 0.8s ease-out;
+        }
+        @keyframes neonPulse {
+            0% { box-shadow: 0 0 30px rgba(123, 97, 255, 0.6); transform: scale(0.98); }
+            100% { box-shadow: 0 5px 10px rgba(0,0,0,0.02); transform: scale(1); }
         }
 
-        .task-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(91, 74, 255, 0.1);
+        .empty-msg { text-align: center; color: #aaa; padding: 20px; font-size: 14px; }
+
+        /* ===== الثيم الليلي ===== */
+        body.night-theme {
+            background-color: var(--bg-dark); color: var(--text-dark);
+        }
+        body.night-theme .glass-container {
+            background: var(--glass-dark); box-shadow: var(--shadow-dark);
+        }
+        body.night-theme .input-group input {
+            background: rgba(255,255,255,0.1); color: white;
+        }
+        body.night-theme .task-card {
+            background: rgba(255,255,255,0.05); color: white;
+        }
+        body.night-theme .task-card:hover {
+            border-color: var(--primary); box-shadow: 0 10px 25px rgba(123, 97, 255, 0.3);
         }
 
-        .task-item span {
-            cursor: pointer; font-size: 15px; color: #333;
-            display: flex; align-items: center; gap: 10px;
-        }
-
-        .task-item.completed span {
-            text-decoration: line-through; opacity: 0.6; color: #888;
-        }
-
-        .delete-btn {
-            background: transparent; border: none; color: #ff6b6b;
-            font-size: 18px; cursor: pointer; padding: 5px;
-            transition: 0.2s;
-        }
-
-        .delete-btn:hover {
-            transform: scale(1.2); color: #d63031;
-        }
-
-        .empty-msg {
-            text-align: center; color: #888; padding: 30px 0; font-size: 14px;
+        /* ===== التجاوب للهواتف ===== */
+        @media (max-width: 600px) {
+            .columns { grid-template-columns: 1fr; gap: 10px; }
+            h1 { font-size: 22px; }
         }
     </style>
 </head>
 <body>
+
     <div id="root"></div>
 
     <script type="text/babel">
-        // كود React
+        const translations = {
+            en: {
+                title: "✨ Smart Planner",
+                placeholder: "Write a new task...",
+                add: "Add",
+                pending: "To Do",
+                done: "Done",
+                empty: "🎉 No tasks yet! Add one above."
+            },
+            ar: {
+                title: "✨ مخطط ذكي",
+                placeholder: "اكتب مهمة جديدة...",
+                add: "إضافة",
+                pending: "مهامي",
+                done: "مكتملة",
+                empty: "🎉 لا توجد مهام! أضف واحدة فوق."
+            }
+        };
+
+        // 1. تحديد لغة الجهاز
+        const userLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
+        const t = (key) => translations[userLang][key];
+
+        // 2. تحديد وقت الجهاز للثيم
+        const hour = new Date().getHours();
+        if (hour < 6 || hour >= 18) document.body.classList.add('night-theme');
+
+        // 3. استرجاع المهام من التخزين (LocalStorage)
+        const savedTasks = JSON.parse(localStorage.getItem('reactTasks')) || [
+            { id: 1, text: "تعلم React", completed: false },
+            { id: 2, text: "بناء تطبيق To-Do", completed: true }
+        ];
+
         function App() {
-            const [tasks, setTasks] = React.useState([
-                { id: 1, text: 'تعلم React', completed: true },
-                { id: 2, text: 'بناء تطبيق To-Do', completed: false }
-            ]);
+            const [tasks, setTasks] = React.useState(savedTasks);
             const [inputText, setInputText] = React.useState('');
+            const [animId, setAnimId] = React.useState(null);
+
+            // حفظ المهام عند أي تغيير
+            React.useEffect(() => {
+                localStorage.setItem('reactTasks', JSON.stringify(tasks));
+            }, [tasks]);
 
             const addTask = () => {
                 if (inputText.trim() === '') return;
                 const newTask = { id: Date.now(), text: inputText, completed: false };
                 setTasks([...tasks, newTask]);
+                setAnimId(newTask.id);
                 setInputText('');
-            };
-
-            const deleteTask = (id) => {
-                setTasks(tasks.filter(task => task.id !== id));
+                setTimeout(() => setAnimId(null), 800);
             };
 
             const toggleComplete = (id) => {
-                setTasks(tasks.map(task => 
-                    task.id === id ? { ...task, completed: !task.completed } : task
-                ));
+                setTasks(tasks.map(t => t.id === id ? { ...t, completed: !t.completed } : t));
             };
 
+            const deleteTask = (id) => {
+                setTasks(tasks.filter(t => t.id !== id));
+            };
+
+            // تقسيم المهام إلى عمودين
+            const pendingTasks = tasks.filter(t => !t.completed);
+            const doneTasks = tasks.filter(t => t.completed);
+
             return (
-                <div className="app-container">
-                    <h1>✨ React Planner</h1>
+                <div className="glass-container">
+                    <h1>{t('title')}</h1>
                     
-                    <div className="input-area">
+                    <div className="input-group">
                         <input 
                             type="text" 
                             value={inputText} 
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                            placeholder="اكتب مهمة جديدة..."
+                            placeholder={t('placeholder')}
                         />
-                        <button onClick={addTask}>➕ أضف</button>
+                        <button onClick={addTask}>{t('add')}</button>
                     </div>
 
-                    <div className="task-list">
-                        {tasks.length === 0 ? (
-                            <p className="empty-msg">🎉 لا توجد مهام! أضف مهمة جديدة.</p>
-                        ) : (
-                            tasks.map(task => (
-                                <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                                    <span onClick={() => toggleComplete(task.id)}>
-                                        {task.completed ? '✅' : '⬜'} {task.text}
-                                    </span>
-                                    <button className="delete-btn" onClick={() => deleteTask(task.id)}>
-                                        ✕
-                                    </button>
-                                </div>
-                            ))
-                        )}
+                    <div className="columns">
+                        {/* عمود المهام غير المكتملة */}
+                        <div>
+                            <span className="col-title">{t('pending')}</span>
+                            {pendingTasks.length === 0 ? (
+                                <div className="empty-msg">{t('empty')}</div>
+                            ) : (
+                                pendingTasks.map(task => (
+                                    <div 
+                                        key={task.id} 
+                                        className={`task-card ${animId === task.id ? 'just-added' : ''}`}
+                                        onClick={() => toggleComplete(task.id)}
+                                    >
+                                        <span className="text">⬜ {task.text}</span>
+                                        <button className="delete-btn" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>✕</button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
+
+                        {/* عمود المهام المكتملة */}
+                        <div>
+                            <span className="col-title">{t('done')}</span>
+                            {doneTasks.length === 0 ? (
+                                <div className="empty-msg" style={{opacity:0.5}}>--</div>
+                            ) : (
+                                doneTasks.map(task => (
+                                    <div 
+                                        key={task.id} 
+                                        className="task-card"
+                                        onClick={() => toggleComplete(task.id)}
+                                    >
+                                        <span className="text">✅ {task.text}</span>
+                                        <button className="delete-btn" onClick={(e) => { e.stopPropagation(); deleteTask(task.id); }}>✕</button>
+                                    </div>
+                                ))
+                            )}
+                        </div>
                     </div>
                 </div>
             );
         }
 
-        // تشغيل التطبيق
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
