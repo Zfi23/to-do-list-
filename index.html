@@ -1,157 +1,149 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Zen Productivity Engine</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <!-- استخدام إصدار React المدمج بشكل مباشر -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --bg-main: #FCF8F2;
-            --purple-main: #7E57C2;
-            --purple-dark: #5E35B1;
-            --purple-light: #EDE7F6;
-            --card-bg: rgba(255, 255, 255, 0.85);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.2);
-            --text-main: #2D1B2D;
-            --text-muted: #887A8E;
-            --shadow: 0 8px 20px rgba(126, 87, 194, 0.1);
-            --gold: #D4AF37;
+        * {
+            margin: 0; padding: 0; box-sizing: border-box;
+            font-family: 'Quicksand', sans-serif;
+            transition: 0.2s ease;
         }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; transition: 0.3s ease; }
 
         body {
-            background-color: var(--bg-main); color: var(--text-main);
-            display: flex; justify-content: center; padding: 20px; min-height: 100vh;
+            background: #FCF8F2;
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; padding: 20px;
         }
 
-        .app-container { max-width: 950px; width: 100%; }
-
-        /* شاشة التحميل الأولية */
+        /* ===== شاشة التحميل الأولية ===== */
         #loading-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-main); display: flex; justify-content: center; align-items: center; z-index: 9999; flex-direction: column; gap: 10px;
+            background: #FCF8F2; display: flex; justify-content: center; align-items: center;
+            flex-direction: column; z-index: 9999;
         }
-        .loader { width: 40px; height: 40px; border: 4px solid #eee; border-top: 4px solid var(--purple-main); border-radius: 50%; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        #loading-screen h2 { color: var(--purple-main); font-size: 18px; }
+        .loader {
+            width: 40px; height: 40px; border: 4px solid #eee;
+            border-top: 4px solid #7E57C2; border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        #loading-screen h2 { color: #7E57C2; margin-top: 15px; font-size: 18px; }
 
+        /* ===== نافذة الترحيب ===== */
         .onboarding-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(45, 27, 45, 0.6); backdrop-filter: blur(6px);
-            display: flex; justify-content: center; align-items: center; z-index: 1000;
+            background: rgba(45, 27, 45, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 1000;
         }
         .onboarding-box {
-            background: white; padding: 40px; border-radius: 30px; max-width: 400px; width: 90%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.2); text-align: center;
+            background: white; padding: 40px; border-radius: 30px;
+            max-width: 400px; width: 90%; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
         }
-        .onboarding-box h2 { color: var(--purple-dark); }
+        .onboarding-box h2 { color: #5E35B1; margin-bottom: 10px; }
         .onboarding-box input, .onboarding-box select {
-            width: 100%; padding: 12px; border-radius: 15px; border: 1px solid #ddd;
-            margin: 10px 0; font-weight: 600; outline: none;
+            width: 100%; padding: 12px; border-radius: 15px;
+            border: 1px solid #ddd; margin: 10px 0; outline: none; font-weight: 600;
         }
         .onboarding-box button {
-            width: 100%; padding: 12px; background: var(--purple-main); color: white;
+            width: 100%; padding: 12px; background: #7E57C2; color: white;
             border: none; border-radius: 15px; font-weight: 700; cursor: pointer;
-            margin-top: 10px;
         }
 
+        /* ===== الإطار الرئيسي ===== */
+        .app-container { max-width: 800px; width: 100%; }
         .gold-frame {
-            background: var(--card-bg); backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
             border-radius: 40px; padding: 30px;
-            box-shadow: var(--shadow), 0 0 0 2px var(--gold), 0 0 0 4px var(--bg-main);
-            border: 2px solid var(--gold);
+            box-shadow: 0 10px 30px rgba(126, 87, 194, 0.1);
+            border: 2px solid #D4AF37;
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .header h2 { color: var(--purple-dark); font-size: 22px; }
-        .header .avatar { background: var(--purple-main); color: white; padding: 8px 16px; border-radius: 30px; font-weight: 600; font-size: 14px; }
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .header h2 { font-size: 22px; color: #5E35B1; }
+        .header .avatar { background: #7E57C2; color: white; padding: 8px 16px; border-radius: 30px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: rgba(255,255,255,0.5); border-radius: 20px; padding: 15px; text-align: center; border: var(--glass-border); }
-        .stat-card .num { font-size: 28px; font-weight: 700; color: var(--purple-main); }
-        .stat-card .lbl { font-size: 12px; color: var(--text-muted); }
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
+        .stat-card { background: rgba(255,255,255,0.5); border-radius: 20px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.05); }
+        .stat-card .num { font-size: 24px; font-weight: 700; color: #7E57C2; }
 
-        .task-input-area { display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; }
-        .task-input-area input { flex: 1; padding: 12px; border-radius: 15px; border: 1px solid #ddd; outline: none; font-weight: 600; min-width: 150px; }
-        .task-input-area select { padding: 12px; border-radius: 15px; border: 1px solid #ddd; outline: none; font-weight: 600; }
-        .task-input-area button { padding: 12px 20px; background: var(--purple-main); color: white; border: none; border-radius: 15px; font-weight: 700; cursor: pointer; }
+        .task-input-area { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
+        .task-input-area input { flex: 1; padding: 12px; border-radius: 15px; border: 1px solid #ddd; outline: none; min-width: 150px; }
+        .task-input-area select { padding: 12px; border-radius: 15px; border: 1px solid #ddd; }
+        .task-input-area button { background: #7E57C2; color: white; border: none; padding: 12px 20px; border-radius: 15px; cursor: pointer; }
 
         .task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
-        .task-item { background: white; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; box-shadow: 0 2px 5px rgba(0,0,0,0.02); }
-        .task-item.urgent { border-left-color: #E57373; background: #FFF0F0; }
-        .task-item.important { border-left-color: #FFB74D; background: #FFF8E1; }
+        .task-item { background: white; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; }
+        .task-item.urgent { border-left-color: #E57373; }
+        .task-item.important { border-left-color: #FFB74D; }
         .task-item.normal { border-left-color: #81C784; }
-        .task-item .text { font-weight: 600; flex: 1; }
-        .task-item .actions { display: flex; gap: 5px; }
-        .task-item .actions button { background: #f0f0f0; border: none; padding: 5px 10px; border-radius: 10px; cursor: pointer; font-weight: 600; }
 
-        .mood-section { background: rgba(255,255,255,0.4); border-radius: 20px; padding: 20px; margin-top: 20px; border: var(--glass-border); }
+        .mood-section { background: rgba(255,255,255,0.4); border-radius: 20px; padding: 20px; border: 1px solid rgba(0,0,0,0.05); }
         .mood-grid { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
-        .mood-btn { border: none; background: transparent; font-size: 28px; cursor: pointer; transition: 0.2s; padding: 5px; border-radius: 50%; }
-        .mood-btn:hover { transform: scale(1.2); background: rgba(0,0,0,0.05); }
-        .mood-btn.selected { background: var(--purple-light); box-shadow: 0 0 0 2px var(--purple-main); }
-        .mood-section textarea { width: 100%; padding: 10px; border-radius: 15px; border: 1px solid #ddd; outline: none; margin-top: 10px; font-weight: 600; resize: vertical; font-family: 'Quicksand', sans-serif; }
+        .mood-btn { border: none; background: transparent; font-size: 28px; cursor: pointer; padding: 5px; border-radius: 50%; }
+        .mood-btn.selected { background: #EDE7F6; }
+        .mood-section textarea { width: 100%; padding: 10px; border-radius: 15px; border: 1px solid #ddd; outline: none; margin-top: 10px; font-family: 'Quicksand', sans-serif; }
 
         @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: 1fr 1fr; }
             .task-input-area { flex-direction: column; }
         }
     </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل الأولية -->
+    <!-- شاشة التحميل -->
     <div id="loading-screen">
         <div class="loader"></div>
         <h2>Loading Your Workspace...</h2>
     </div>
 
+    <!-- مكان تطبيق React -->
     <div id="root"></div>
 
     <script type="text/babel">
-        // إخفاء شاشة التحميل بمجرد تحميل React
+        // === إخفاء شاشة التحميل بمجرد أن يبدأ التطبيق ===
         setTimeout(() => {
-            const loader = document.getElementById('loading-screen');
-            if(loader) loader.style.display = 'none';
-        }, 1000);
+            document.getElementById('loading-screen').style.display = 'none';
+        }, 500);
 
-        // --- 1. إعدادات اللغة ---
-        const getDefaultLang = () => navigator.language.startsWith('ar') ? 'ar' : 'en';
+        // === 1. اللغة ===
+        const lang = navigator.language.startsWith('ar') ? 'ar' : 'en';
         const t = (key) => {
             const dict = {
                 en: { 
-                    title: "My Productivity Zen", start: "Start Your Journey", name: "Enter your name...", 
-                    mood: "How are you feeling today?", note: "Write your thoughts...", save: "Save Mood", 
-                    add: "Add Task", urgent: "Urgent", important: "Important", normal: "Normal", 
-                    stats: ["Total Tasks", "Completed", "Happy %", "Mood Entries"],
-                    empty: "No tasks yet. Start your day!",
-                    loading: "Loading Your Workspace..."
+                    title: "My Productivity Zen", start: "Start", name: "Enter your name...", 
+                    mood: "How are you feeling?", note: "Write your thoughts...", save: "Save Mood", 
+                    add: "Add Task", urgent: "Urgent", important: "Important", normal: "Normal",
+                    stats: ["Tasks", "Done", "Happy", "Moods"]
                 },
                 ar: { 
-                    title: "رحلتي الإنتاجية", start: "ابدأ رحلتك", name: "اكتب اسمك...", 
+                    title: "رحلتي الإنتاجية", start: "ابدأ", name: "اكتب اسمك...", 
                     mood: "كيف تشعر اليوم؟", note: "اكتب أفكارك...", save: "حفظ المزاج", 
-                    add: "إضافة مهمة", urgent: "عاجل", important: "مهم", normal: "عادي", 
-                    stats: ["إجمالي المهام", "المكتملة", "نسبة السعادة", "تسجيلات المزاج"],
-                    empty: "لا توجد مهام بعد. ابدأ يومك!",
-                    loading: "جاري تحميل مساحتك..."
+                    add: "إضافة مهمة", urgent: "عاجل", important: "مهم", normal: "عادي",
+                    stats: ["مهام", "مكتملة", "سعادة", "مزاج"]
                 }
             };
             return dict[lang][key] || key;
         };
 
-        // --- 2. حالة التطبيق الرئيسية ---
+        // === 2. مكون التطبيق ===
         function App() {
-            const [lang, setLang] = React.useState(localStorage.getItem('zenLang') || getDefaultLang());
             const [userName, setUserName] = React.useState(localStorage.getItem('zenUser') || '');
             const [isOnboarding, setIsOnboarding] = React.useState(!localStorage.getItem('zenUser'));
-            
-            const [tasks, setTasks] = React.useState(() => JSON.parse(localStorage.getItem('zenTasks')) || []);
-            const [moodLogs, setMoodLogs] = React.useState(() => JSON.parse(localStorage.getItem('zenMoods')) || []);
+
+            const [tasks, setTasks] = React.useState(JSON.parse(localStorage.getItem('zenTasks')) || []);
+            const [moods, setMoods] = React.useState(JSON.parse(localStorage.getItem('zenMoods')) || []);
             
             const [newTask, setNewTask] = React.useState('');
             const [priority, setPriority] = React.useState('normal');
@@ -161,73 +153,63 @@
             // حفظ البيانات
             React.useEffect(() => {
                 localStorage.setItem('zenUser', userName);
-                localStorage.setItem('zenLang', lang);
                 localStorage.setItem('zenTasks', JSON.stringify(tasks));
-                localStorage.setItem('zenMoods', JSON.stringify(moodLogs));
-            }, [userName, lang, tasks, moodLogs]);
+                localStorage.setItem('zenMoods', JSON.stringify(moods));
+            }, [userName, tasks, moods]);
 
-            // --- دوال المهام ---
+            // دوال المهام
             const addTask = () => {
                 if(!newTask.trim()) return;
                 setTasks([{ id: Date.now(), text: newTask, priority, done: false }, ...tasks]);
                 setNewTask('');
             };
-
             const toggleDone = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
             const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
 
-            // --- دوال المزاج ---
+            // دوال المزاج
             const saveMood = () => {
                 if(!currentMood) return;
-                setMoodLogs([{ id: Date.now(), mood: currentMood, note: moodNote, date: new Date().toLocaleDateString() }, ...moodLogs]);
+                setMoods([{ id: Date.now(), mood: currentMood, note: moodNote, date: new Date().toLocaleDateString() }, ...moods]);
                 setCurrentMood('');
                 setMoodNote('');
             };
 
-            // --- إحصائيات ذكية ---
-            const totalTasks = tasks.length;
-            const doneTasks = tasks.filter(t => t.done).length;
-            const moodCount = moodLogs.length;
-            const happyMoods = moodLogs.filter(m => m.mood === '😊' || m.mood === '🥰').length;
-            const happinessPercentage = moodCount > 0 ? Math.round((happyMoods / moodCount) * 100) : 0;
+            // الإحصائيات
+            const total = tasks.length;
+            const done = tasks.filter(t => t.done).length;
+            const happyMoods = moods.filter(m => m.mood === '😊' || m.mood === '🥰').length;
+            const happyPct = moods.length > 0 ? Math.round((happyMoods / moods.length) * 100) : 0;
 
-            // --- شاشة البداية ---
+            // شاشة البداية
             if(isOnboarding) {
                 return (
                     <div className="onboarding-overlay">
                         <div className="onboarding-box">
                             <h2>🌸 {t('title')}</h2>
                             <input type="text" placeholder={t('name')} value={userName} onChange={(e) => setUserName(e.target.value)} />
-                            <select value={lang} onChange={(e) => setLang(e.target.value)}>
-                                <option value="en">🇬🇧 English</option>
-                                <option value="ar">🇸🇦 العربية</option>
-                            </select>
                             <button onClick={() => { if(userName.trim()) setIsOnboarding(false); }}>{t('start')}</button>
                         </div>
                     </div>
                 );
             }
 
-            // --- الواجهة الرئيسية ---
             return (
                 <div className="app-container">
                     <div className="gold-frame">
                         <div className="header">
                             <h2>🌸 {userName}'s {t('title')}</h2>
-                            <div className="avatar">{lang === 'en' ? 'EN' : 'عربي'}</div>
+                            <div className="avatar">{lang === 'en' ? '🇬🇧 EN' : '🇸🇦 عربي'}</div>
                         </div>
 
-                        {/* الإحصائيات */}
                         <div className="stats-grid">
-                            <div className="stat-card"><div className="num">{totalTasks}</div><div className="lbl">{t('stats')[0]}</div></div>
-                            <div className="stat-card"><div className="num">{doneTasks}</div><div className="lbl">{t('stats')[1]}</div></div>
-                            <div className="stat-card"><div className="num">{happinessPercentage}%</div><div className="lbl">{t('stats')[2]}</div></div>
-                            <div className="stat-card"><div className="num">{moodCount}</div><div className="lbl">{t('stats')[3]}</div></div>
+                            <div className="stat-card"><div className="num">{total}</div>{t('stats')[0]}</div>
+                            <div className="stat-card"><div className="num">{done}</div>{t('stats')[1]}</div>
+                            <div className="stat-card"><div className="num">{happyPct}%</div>{t('stats')[2]}</div>
+                            <div className="stat-card"><div className="num">{moods.length}</div>{t('stats')[3]}</div>
                         </div>
 
-                        {/* إضافة مهمة */}
                         <div className="task-input-area">
-                            <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder={t('add') + "..."} onKeyDown={(e) => e.key === 'Enter' && addTask()} />
+                            <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Write a task..." onKeyDown={(e) => e.key === 'Enter' && addTask()} />
                             <select value={priority} onChange={(e) => setPriority(e.target.value)}>
                                 <option value="urgent">⚡ {t('urgent')}</option>
                                 <option value="important">⭐ {t('important')}</option>
@@ -236,42 +218,35 @@
                             <button onClick={addTask}>➕ {t('add')}</button>
                         </div>
 
-                        {/* قائمة المهام */}
                         <div className="task-list">
-                            {tasks.length === 0 && <div style={{textAlign:'center', color:'var(--text-muted)', padding:'20px'}}>{t('empty')}</div>}
+                            {tasks.length === 0 && <div style={{textAlign:'center', color:'#aaa'}}>No tasks yet!</div>}
                             {tasks.map(task => (
                                 <div key={task.id} className={`task-item ${task.priority}`}>
-                                    <span className="text" style={{ textDecoration: task.done ? 'line-through' : 'none', opacity: task.done ? 0.6 : 1 }}>
-                                        {task.text}
-                                    </span>
-                                    <div className="actions">
-                                        <button style={{background: task.done ? '#ddd' : 'var(--purple-light)', color: task.done ? '#999' : 'var(--purple-dark)'}} onClick={() => toggleDone(task.id)}>
-                                            {task.done ? '↩️' : '✅'}
-                                        </button>
-                                        <button onClick={() => deleteTask(task.id)}>🗑️</button>
+                                    <span style={{textDecoration: task.done ? 'line-through' : 'none'}}>{task.text}</span>
+                                    <div>
+                                        <button onClick={() => toggleDone(task.id)}>✅</button>
+                                        <button onClick={() => deleteTask(task.id)} style={{border:'none', background:'transparent', cursor:'pointer'}}>🗑️</button>
                                     </div>
                                 </div>
                             ))}
                         </div>
 
-                        {/* تتبع المزاج */}
                         <div className="mood-section">
-                            <h3 style={{color:'var(--purple-dark)'}}>🌿 {t('mood')}</h3>
+                            <h3>🌿 {t('mood')}</h3>
                             <div className="mood-grid">
-                                {['😊', '🥰', '😐', '😔', '😢', '😡'].map(emoji => (
-                                    <button key={emoji} className={`mood-btn ${currentMood === emoji ? 'selected' : ''}`} onClick={() => setCurrentMood(emoji)}>
-                                        {emoji}
-                                    </button>
+                                {['😊','🥰','😐','😔','😢','😡'].map(e => (
+                                    <button key={e} className={`mood-btn ${currentMood === e ? 'selected' : ''}`} onClick={() => setCurrentMood(e)}>{e}</button>
                                 ))}
                             </div>
                             <textarea rows="2" placeholder={t('note')} value={moodNote} onChange={(e) => setMoodNote(e.target.value)}></textarea>
-                            <button onClick={saveMood} style={{marginTop:'10px', padding:'10px 20px', background:'var(--purple-main)', color:'white', border:'none', borderRadius:'15px', fontWeight:'700', cursor:'pointer'}}>{t('save')}</button>
+                            <button onClick={saveMood} style={{marginTop:'10px', padding:'10px 20px', background:'#7E57C2', color:'white', border:'none', borderRadius:'15px', cursor:'pointer', fontWeight:'bold'}}>{t('save')}</button>
                         </div>
                     </div>
                 </div>
             );
         }
 
+        // === 3. تشغيل التطبيق ===
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
