@@ -4,13 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Planner React</title>
-    <!-- استيراد React و Babel -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        /* === ألوان عامة === */
         :root {
             --bg-color: #FFF3E3;
             --text-main: #5C4D4D;
@@ -32,7 +30,6 @@
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
 
-        /* --- وضع الاسترخاء --- */
         body.relax-mode {
             --bg-color: #E8E0D5;
             --text-main: #8A7D7D;
@@ -42,7 +39,7 @@
             --card-bg: rgba(255, 255, 255, 0.3);
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; transition: all 0.4s ease; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; transition: all 0.3s ease; }
 
         body {
             background-color: var(--bg-color); color: var(--text-main);
@@ -60,16 +57,14 @@
         .header h1 { font-size: 26px; font-weight: 700; }
         .name-input { padding: 8px 15px; border-radius: 30px; border: 2px solid var(--pink); background: rgba(255,255,255,0.3); color: var(--text-main); outline: none; width: 160px; font-weight: 600; }
 
-        /* --- شريط الإحصائيات --- */
         .stats-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
         .stat-card { background: rgba(255,255,255,0.2); padding: 15px 20px; border-radius: 20px; flex: 1; text-align: center; }
         .stat-card span { font-size: 22px; font-weight: 700; display: block; color: var(--pink); }
 
-        /* --- المؤقت الدائري --- */
         .timer-section {
             display: flex; justify-content: center; align-items: center; gap: 20px;
             margin-bottom: 20px; background: rgba(255,255,255,0.1);
-            padding: 20px; border-radius: 30px;
+            padding: 20px; border-radius: 30px; flex-wrap: wrap;
         }
         .timer-ring {
             position: relative; width: 100px; height: 100px;
@@ -82,13 +77,19 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 24px; font-weight: 700; color: var(--pink);
         }
+
+        .timer-controls { display: flex; align-items: center; gap: 10px; }
+        .timer-input {
+            width: 50px; padding: 8px; border-radius: 20px; border: 2px solid var(--pink);
+            background: rgba(255,255,255,0.3); color: var(--text-main); text-align: center; font-weight: 700; outline: none;
+        }
+
         .timer-btn {
             padding: 12px 30px; border-radius: 30px; border: none;
             background: var(--green); color: white; font-weight: 700; cursor: pointer;
         }
         .timer-btn.stop { background: #ff6b6b; }
 
-        /* --- المهام --- */
         .task-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .task-card { background: rgba(255,255,255,0.4); border-radius: 30px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .task-card.done { border: 2px solid var(--green); }
@@ -96,37 +97,30 @@
         .btn-del { background: #FFCDD2; border: none; color: #C62828; width: 25px; height: 25px; border-radius: 50%; cursor: pointer; font-weight: bold; }
         .btn-done { background: var(--green); border: none; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; }
 
-        /* --- الإدخال --- */
         .input-area { display: flex; gap: 10px; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 50px; border: 1px solid rgba(255,255,255,0.1); }
         .input-area input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-main); font-weight: 600; padding: 10px; }
         .input-area button { background: var(--pink); border: none; color: white; padding: 10px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; }
 
-        @media (max-width: 500px) {
-            .timer-section { flex-direction: column; }
-        }
+        @media (max-width: 500px) { .timer-section { flex-direction: column; } }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // === 1. الترجمة حسب لغة الجهاز ===
+        const userLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
         const t = (key) => {
-            const lang = navigator.language.startsWith('ar') ? 'ar' : 'en';
             const dict = {
-                en: { title: "🌸 My Planner", task: "Task", done: "Done", add: "Add", start: "Start", stop: "Stop" },
-                ar: { title: "🌸 مخططي", task: "مهمة", done: "تم", add: "إضافة", start: "ابدأ", stop: "إيقاف" }
+                en: { title: "🌸 My Planner", task: "Task", done: "Done", add: "Add", start: "Start", stop: "Stop", placeholder: "Enter your name", timer: "min" },
+                ar: { title: "🌸 مخططي", task: "مهمة", done: "تم", add: "إضافة", start: "ابدأ", stop: "إيقاف", placeholder: "اكتب اسمك", timer: "دقيقة" }
             };
-            return dict[lang][key];
+            return dict[userLang][key];
         };
 
-        // === 2. الثيم حسب الوقت ===
         const hour = new Date().getHours();
         if (hour < 6 || hour >= 18) document.body.classList.add('night-theme');
 
-        // === 3. الدالة الرئيسية ===
         function App() {
-            // الحالات
             const [tasks, setTasks] = React.useState(() => {
                 const saved = localStorage.getItem('plannerTasks');
                 return saved ? JSON.parse(saved) : [
@@ -134,27 +128,23 @@
                     { id: 2, text: `${t('task')} 2`, done: false }
                 ];
             });
-            const [name, setName] = React.useState(localStorage.getItem('userName') || 'Bunny');
+            const [name, setName] = React.useState(localStorage.getItem('userName') || '');
             const [inputText, setInputText] = React.useState('');
             
-            // حالة المؤقت المتقدمة
-            const [timer, setTimer] = React.useState(300); // 5 دقائق بالثواني
+            const [timer, setTimer] = React.useState(300);
             const [isRunning, setIsRunning] = React.useState(false);
             const [relaxMode, setRelaxMode] = React.useState(false);
+            const [userMinutes, setUserMinutes] = React.useState(5);
 
-            // الحفظ التلقائي
             React.useEffect(() => {
                 localStorage.setItem('userName', name);
                 localStorage.setItem('plannerTasks', JSON.stringify(tasks));
             }, [name, tasks]);
 
-            // === المؤقت الذكي (بدون أخطاء) ===
             React.useEffect(() => {
                 let interval = null;
                 if (isRunning && timer > 0) {
-                    interval = setInterval(() => {
-                        setTimer(prev => prev - 1);
-                    }, 1000);
+                    interval = setInterval(() => setTimer(prev => prev - 1), 1000);
                 } else if (timer === 0 && isRunning) {
                     setIsRunning(false);
                     setRelaxMode(true);
@@ -162,17 +152,15 @@
                     setTimeout(() => {
                         setRelaxMode(false);
                         document.body.classList.remove('relax-mode');
-                        setTimer(300);
+                        setTimer(userMinutes * 60);
                     }, 10000);
                 }
                 return () => clearInterval(interval);
             }, [isRunning, timer]);
 
-            // حجم الدائرة (لشريط التقدم)
-            const circumference = 2 * Math.PI * 40; // 40 هو نصف القطر
-            const progress = ((300 - timer) / 300) * circumference;
+            const circumference = 2 * Math.PI * 40;
+            const progress = ((userMinutes * 60 - timer) / (userMinutes * 60)) * circumference;
 
-            // دوال المهام
             const addTask = () => {
                 if (inputText.trim() === '') return;
                 setTasks([...tasks, { id: Date.now(), text: inputText, done: false }]);
@@ -187,15 +175,29 @@
 
             const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
 
-            // الإحصائيات
             const total = tasks.length;
             const done = tasks.filter(t => t.done).length;
             const rate = total === 0 ? 0 : Math.round((done / total) * 100);
 
+            const handleTimerChange = (e) => {
+                const val = parseInt(e.target.value);
+                if (!isNaN(val) && val > 0) {
+                    setUserMinutes(val);
+                    setTimer(val * 60);
+                }
+            };
+
             return (
                 <div className="app-container">
                     <div className="header">
-                        <h1>{t('title')}, <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} /></h1>
+                        <h1>{t('title')}, 
+                            <input 
+                                className="name-input" 
+                                value={name} 
+                                onChange={(e) => setName(e.target.value)} 
+                                placeholder={t('placeholder')}
+                            />
+                        </h1>
                         <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--pink)' }}>
                             {new Date().toLocaleTimeString()}
                         </div>
@@ -213,15 +215,21 @@
                                 <circle className="timer-bg" cx="50" cy="50" r="40"></circle>
                                 <circle className="timer-progress" cx="50" cy="50" r="40" 
                                     strokeDasharray={circumference} 
-                                    strokeDashoffset={circumference - progress}></circle>
+                                    strokeDashoffset={circumference - progress}
+                                    style={{ stroke: isRunning ? '#6C63FF' : '#E8D5F5' }}>
+                                </circle>
                             </svg>
                             <div className="timer-text">
                                 {String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}
                             </div>
                         </div>
-                        <button className={`timer-btn ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
-                            {isRunning ? t('stop') : t('start')}
-                        </button>
+                        <div className="timer-controls">
+                            <input type="number" className="timer-input" value={userMinutes} onChange={handleTimerChange} min="1" />
+                            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('timer')}</span>
+                            <button className={`timer-btn ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
+                                {isRunning ? t('stop') : t('start')}
+                            </button>
+                        </div>
                     </div>
 
                     <div className="task-grid">
@@ -246,7 +254,6 @@
             );
         }
 
-        // === 4. الاحتفال (Confetti) ===
         function launchConfetti() {
             const colors = ['#F7A1C4', '#FCE4EC', '#FFD54F', '#80CBC4', '#B39DDB', '#FFAB91'];
             for (let i = 0; i < 50; i++) {
