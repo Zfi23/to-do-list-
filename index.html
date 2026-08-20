@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React To-Do List</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background: #f4f7f6; display: flex; justify-content: center; padding: 40px; }
+        .app-container { max-width: 500px; width: 100%; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #333; margin-bottom: 20px; }
+        .input-area { display: flex; gap: 10px; margin-bottom: 20px; }
+        .input-area input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; outline: none; }
+        .input-area input:focus { border-color: #6C63FF; }
+        .input-area button { padding: 10px 20px; background: #6C63FF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
+        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px; }
+        .task-item.completed span { text-decoration: line-through; opacity: 0.6; }
+        .delete-btn { background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
+        .empty-msg { text-align: center; color: #888; padding: 20px; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // هذا هو كود React الخاص بنا
+        function App() {
+            // نستخدم useState لتخزين المهام
+            const [tasks, setTasks] = React.useState([
+                { id: 1, text: 'تعلم React', completed: true },
+                { id: 2, text: 'بناء تطبيق To-Do', completed: false }
+            ]);
+
+            // تخزين النص المكتوب في حقل الإدخال
+            const [inputText, setInputText] = React.useState('');
+
+            // دوال التفاعل
+            const addTask = () => {
+                if (inputText.trim() === '') return;
+                const newTask = { id: Date.now(), text: inputText, completed: false };
+                setTasks([...tasks, newTask]); // إضافة للمصفوفة
+                setInputText(''); // مسح الحقل
+            };
+
+            const deleteTask = (id) => {
+                setTasks(tasks.filter(task => task.id !== id));
+            };
+
+            const toggleComplete = (id) => {
+                setTasks(tasks.map(task => 
+                    task.id === id ? { ...task, completed: !task.completed } : task
+                ));
+            };
+
+            // عرض واجهة المستخدم
+            return (
+                <div className="app-container">
+                    <h1>📝 React To-Do</h1>
+                    
+                    <div className="input-area">
+                        <input 
+                            type="text" 
+                            value={inputText} 
+                            onChange={(e) => setInputText(e.target.value)}
+                            onKeyDown={(e) => e.key === 'Enter' && addTask()}
+                            placeholder="أضف مهمة جديدة..."
+                        />
+                        <button onClick={addTask}>إضافة</button>
+                    </div>
+
+                    <div className="task-list">
+                        {tasks.length === 0 ? (
+                            <p className="empty-msg">لا توجد مهام بعد...</p>
+                        ) : (
+                            tasks.map(task => (
+                                <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
+                                    <span onClick={() => toggleComplete(task.id)} style={{cursor: 'pointer'}}>
+                                        {task.completed ? '✅' : '⬜'} {task.text}
+                                    </span>
+                                    <div>
+                                        <button className="delete-btn" onClick={() => deleteTask(task.id)}>حذف</button>
+                                    </div>
+                                </div>
+                            ))
+                        )}
+                    </div>
+                </div>
+            );
+        }
+
+        // تشغيل التطبيق
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
