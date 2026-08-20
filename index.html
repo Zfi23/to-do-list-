@@ -62,17 +62,20 @@
         .stat-card span { font-size: 22px; font-weight: 700; display: block; color: var(--pink); }
 
         .timer-section {
-            display: flex; justify-content: center; align-items: center; gap: 20px;
+            display: flex; flex-direction: column; align-items: center;
             margin-bottom: 20px; background: rgba(255,255,255,0.1);
-            padding: 20px; border-radius: 30px; flex-wrap: wrap;
+            padding: 20px; border-radius: 30px;
         }
+
+        .timer-row { display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap; }
+
         .timer-ring {
             position: relative; width: 100px; height: 100px;
         }
         .timer-ring svg { transform: rotate(-90deg); width: 100px; height: 100px; }
         .timer-ring circle { fill: none; stroke-width: 8; stroke-linecap: round; }
-        .timer-bg { stroke: rgba(255,255,255,0.2); }
-        .timer-progress { stroke: var(--pink); transition: stroke-dashoffset 0.5s ease; }
+        .timer-bg { stroke: rgba(255,255,255,0.15); }
+        .timer-progress { transition: stroke-dashoffset 0.5s ease; }
         .timer-text {
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
             font-size: 24px; font-weight: 700; color: var(--pink);
@@ -90,6 +93,10 @@
         }
         .timer-btn.stop { background: #ff6b6b; }
 
+        .live-clock {
+            font-size: 14px; color: var(--text-muted); font-weight: 600; margin-top: 8px; font-variant-numeric: tabular-nums;
+        }
+
         .task-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 20px; }
         .task-card { background: rgba(255,255,255,0.4); border-radius: 30px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
         .task-card.done { border: 2px solid var(--green); }
@@ -101,7 +108,7 @@
         .input-area input { flex: 1; background: transparent; border: none; outline: none; color: var(--text-main); font-weight: 600; padding: 10px; }
         .input-area button { background: var(--pink); border: none; color: white; padding: 10px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; }
 
-        @media (max-width: 500px) { .timer-section { flex-direction: column; } }
+        @media (max-width: 500px) { .timer-row { flex-direction: column; } }
     </style>
 </head>
 <body>
@@ -135,12 +142,14 @@
             const [isRunning, setIsRunning] = React.useState(false);
             const [relaxMode, setRelaxMode] = React.useState(false);
             const [userMinutes, setUserMinutes] = React.useState(5);
+            const [liveTime, setLiveTime] = React.useState(new Date());
 
             React.useEffect(() => {
                 localStorage.setItem('userName', name);
                 localStorage.setItem('plannerTasks', JSON.stringify(tasks));
             }, [name, tasks]);
 
+            // المؤقت
             React.useEffect(() => {
                 let interval = null;
                 if (isRunning && timer > 0) {
@@ -158,8 +167,15 @@
                 return () => clearInterval(interval);
             }, [isRunning, timer]);
 
+            // الساعة الحقيقية (الثواني)
+            React.useEffect(() => {
+                const clockInterval = setInterval(() => setLiveTime(new Date()), 1000);
+                return () => clearInterval(clockInterval);
+            }, []);
+
             const circumference = 2 * Math.PI * 40;
-            const progress = ((userMinutes * 60 - timer) / (userMinutes * 60)) * circumference;
+            const maxSeconds = userMinutes * 60;
+            const progress = ((maxSeconds - timer) / maxSeconds) * circumference;
 
             const addTask = () => {
                 if (inputText.trim() === '') return;
@@ -198,9 +214,6 @@
                                 placeholder={t('placeholder')}
                             />
                         </h1>
-                        <div style={{ fontSize: '14px', fontWeight: 'bold', color: 'var(--pink)' }}>
-                            {new Date().toLocaleTimeString()}
-                        </div>
                     </div>
 
                     <div className="stats-row">
@@ -210,25 +223,30 @@
                     </div>
 
                     <div className="timer-section">
-                        <div className="timer-ring">
-                            <svg viewBox="0 0 100 100">
-                                <circle className="timer-bg" cx="50" cy="50" r="40"></circle>
-                                <circle className="timer-progress" cx="50" cy="50" r="40" 
-                                    strokeDasharray={circumference} 
-                                    strokeDashoffset={circumference - progress}
-                                    style={{ stroke: isRunning ? '#6C63FF' : '#E8D5F5' }}>
-                                </circle>
-                            </svg>
-                            <div className="timer-text">
-                                {String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}
+                        <div className="timer-row">
+                            <div className="timer-ring">
+                                <svg viewBox="0 0 100 100">
+                                    <circle className="timer-bg" cx="50" cy="50" r="40"></circle>
+                                    <circle className="timer-progress" cx="50" cy="50" r="40" 
+                                        strokeDasharray={circumference} 
+                                        strokeDashoffset={circumference - progress}
+                                        style={{ stroke: isRunning ? '#7B61FF' : '#E8D5F5' }}>
+                                    </circle>
+                                </svg>
+                                <div className="timer-text">
+                                    {String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}
+                                </div>
+                            </div>
+                            <div className="timer-controls">
+                                <input type="number" className="timer-input" value={userMinutes} onChange={handleTimerChange} min="1" />
+                                <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('timer')}</span>
+                                <button className={`timer-btn ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
+                                    {isRunning ? t('stop') : t('start')}
+                                </button>
                             </div>
                         </div>
-                        <div className="timer-controls">
-                            <input type="number" className="timer-input" value={userMinutes} onChange={handleTimerChange} min="1" />
-                            <span style={{ fontSize: '14px', color: 'var(--text-muted)' }}>{t('timer')}</span>
-                            <button className={`timer-btn ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
-                                {isRunning ? t('stop') : t('start')}
-                            </button>
+                        <div className="live-clock">
+                            {liveTime.toLocaleTimeString()}
                         </div>
                     </div>
 
