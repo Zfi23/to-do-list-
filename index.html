@@ -3,252 +3,244 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Planner React</title>
+    <title>Productivity Zen Journal</title>
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
-    
     <style>
-        /* --- متغيرات الألوان الرئيسية --- */
+        /* ===== تدرجات الألوان (بنفسجي + كريمي) ===== */
         :root {
-            --bg-color: #FCF6F0; /* بيج دافئ جداً */
-            --text-main: #4D3C3C;
-            --text-muted: #9E8C8C;
-            --pink: #F7A1C4;
-            --dark-pink: #D981A2;
-            --green: #A8D8C8;
-            --brown: #D4BFAE;
-            --card-bg: #FFFFFF;
-            --shadow: 0 10px 30px rgba(247, 161, 196, 0.15);
-        }
-
-        body.night-theme {
-            --bg-color: #2D2438;
-            --text-main: #E6DFED;
-            --text-muted: #A99BB5;
-            --pink: #C49AC8;
-            --green: #80A89C;
-            --brown: #5C4B6E;
-            --card-bg: #3A2C4B;
-            --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            --bg-main: #FCF8F2; /* كريمي فاتح جداً */
+            --purple-light: #E6E0F8; /* بنفسجي فاتح */
+            --purple-main: #9B8BFF; /* بنفسجي متوسط */
+            --purple-dark: #6C5CE7; /* بنفسجي غامق */
+            --card-bg: rgba(255, 255, 255, 0.6);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.3);
+            --text-main: #3D2C3D;
+            --text-muted: #887A8E;
+            --shadow: 0 10px 30px rgba(155, 139, 255, 0.1);
+            --gold: #D4AF37;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; transition: all 0.3s ease; }
 
         body {
-            background-color: var(--bg-color); color: var(--text-main);
+            background-color: var(--bg-main); color: var(--text-main);
             display: flex; justify-content: center; padding: 20px; min-height: 100vh;
         }
 
         .app-container {
             max-width: 900px; width: 100%;
-            background: var(--card-bg);
-            border-radius: 50px; padding: 30px;
-            box-shadow: var(--shadow); 
-            border: 2px solid var(--brown);
+            position: relative;
         }
 
-        /* --- رأس الصفحة --- */
-        .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
-        .header h1 { font-size: 26px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .name-input { padding: 8px 15px; border-radius: 30px; border: 1px solid var(--brown); background: #f9f9f9; color: var(--text-main); outline: none; width: 160px; font-weight: 600; }
+        /* ===== الإطار الذهبي الفاخر (محاكاة) ===== */
+        .gold-frame {
+            background: var(--card-bg); backdrop-filter: blur(10px);
+            border-radius: 40px; padding: 30px;
+            box-shadow: var(--shadow), 0 0 0 2px var(--gold), 0 0 0 4px var(--bg-main);
+            border: 2px solid var(--gold);
+        }
+
+        /* ===== شاشة البداية (Modal) ===== */
+        .onboarding-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(61, 44, 61, 0.7); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center; z-index: 1000;
+        }
+        .onboarding-box {
+            background: white; padding: 40px; border-radius: 30px;
+            max-width: 400px; width: 90%; text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+        }
+        .onboarding-box h2 { color: var(--purple-main); margin-bottom: 10px; }
+        .onboarding-box input {
+            width: 100%; padding: 12px; border-radius: 15px;
+            border: 1px solid #eee; outline: none; margin: 15px 0; font-weight: 600;
+        }
+        .onboarding-box input:focus { border-color: var(--purple-main); }
+        .onboarding-box select {
+            width: 100%; padding: 12px; border-radius: 15px;
+            border: 1px solid #eee; outline: none; margin-bottom: 20px; font-weight: 600;
+        }
+        .onboarding-box button {
+            width: 100%; padding: 12px; background: var(--purple-main);
+            color: white; border: none; border-radius: 15px; font-weight: 700; cursor: pointer;
+        }
+
+        /* ===== رأس الصفحة ===== */
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 10px; }
+        .header-title { font-size: 22px; font-weight: 700; color: var(--purple-dark); }
         .header-right { display: flex; gap: 15px; align-items: center; }
-        .live-clock { background: #f9f9f9; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 14px; }
-        .avatar-icon { width: 40px; height: 40px; background: var(--pink); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 18px; }
+        .lang-badge { background: var(--purple-light); padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: 600; color: var(--purple-dark); }
+        .avatar-icon { width: 40px; height: 40px; background: var(--purple-main); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 18px; }
 
-        /* --- الشريط العلوي --- */
-        .stats-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-card { background: #f9f9f9; padding: 15px 20px; border-radius: 30px; flex: 1; min-width: 100px; text-align: center; }
-        .stat-card.pink { background: var(--pink); color: white; }
-        .stat-card .emoji { font-size: 24px; margin-bottom: 5px; }
-        .stat-card .value { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
+        /* ===== بطاقات الإحصائيات ===== */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-item { background: var(--card-bg); border-radius: 20px; padding: 20px; text-align: center; border: var(--glass-border); }
+        .stat-item .icon { font-size: 28px; margin-bottom: 5px; }
+        .stat-item .val { font-size: 22px; font-weight: 700; color: var(--purple-dark); }
+        .stat-item .lbl { font-size: 12px; color: var(--text-muted); }
 
-        /* --- المؤقت --- */
-        .timer-section { background: #f9f9f9; padding: 15px 25px; border-radius: 40px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
-        .timer-section .time { font-size: 28px; font-weight: 700; color: var(--pink); letter-spacing: 2px; }
-        .timer-controls { display: flex; gap: 10px; align-items: center; }
-        .timer-controls input { width: 60px; padding: 8px; border-radius: 20px; border: 1px solid #eee; background: white; color: var(--text-main); text-align: center; font-weight: 700; outline: none; }
-        .btn-timer { padding: 8px 25px; border: none; border-radius: 30px; font-weight: 700; cursor: pointer; background: var(--brown); color: white; transition: 0.3s; }
-        .btn-timer.stop { background: var(--pink); }
+        /* ===== المؤقت ===== */
+        .timer-wrapper { background: var(--card-bg); border-radius: 30px; padding: 15px 25px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; border: var(--glass-border); }
+        .timer-display { font-size: 28px; font-weight: 700; color: var(--purple-main); }
+        .timer-btn { background: var(--purple-dark); color: white; border: none; padding: 8px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; }
 
-        /* --- المهام --- */
-        .section-header { font-weight: 700; font-size: 18px; margin: 20px 0 15px 0; }
-        .task-card { background: #f9f9f9; border-radius: 30px; padding: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .task-card.done { border: 1px solid var(--green); background: #f0fdfb; }
-        .btn-complete { background: var(--green); border: none; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: 700; }
-        .btn-del { background: transparent; border: none; color: #ccc; font-size: 18px; cursor: pointer; }
+        /* ===== الأقسام القابلة للضغط ===== */
+        .section-title { font-size: 16px; font-weight: 700; color: var(--purple-dark); margin: 20px 0 10px 0; display: flex; align-items: center; gap: 10px; }
+        .clickable-card { background: var(--card-bg); border-radius: 20px; padding: 20px; border: var(--glass-border); cursor: pointer; transition: 0.3s; display: flex; justify-content: space-between; align-items: center; }
+        .clickable-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); border-color: var(--purple-main); }
+        .clickable-card .arrow { color: var(--purple-main); font-size: 18px; }
 
-        /* --- 🆕 قسم تتبع العادات (Habit Tracker) --- */
-        .habit-grid {
-            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
-            background: #f9f9f9; padding: 20px; border-radius: 30px; justify-content: center;
+        /* ===== نافذة التفاصيل (Modal) ===== */
+        .detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(61, 44, 61, 0.6); backdrop-filter: blur(6px); display: flex; justify-content: center; align-items: center; z-index: 999; }
+        .detail-modal.hidden { display: none; }
+        .detail-content { background: white; border-radius: 30px; padding: 30px; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .close-btn { position: absolute; top: 20px; right: 20px; font-size: 24px; cursor: pointer; color: #aaa; }
+        .close-btn:hover { color: #333; }
+
+        @media (max-width: 600px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .timer-wrapper { flex-direction: column; gap: 10px; }
         }
-        .habit-item {
-            background: white; padding: 10px 15px; border-radius: 30px;
-            border: 1px solid #eee; cursor: pointer; font-weight: 600;
-            transition: 0.2s; display: flex; align-items: center; gap: 8px;
-        }
-        .habit-item.done { background: var(--green); color: white; border-color: var(--green); }
-        .habit-item:hover { transform: scale(1.05); }
-
-        /* --- الإدخال --- */
-        .input-area { margin-top: 25px; background: #f9f9f9; padding: 15px; border-radius: 50px; display: flex; gap: 10px; }
-        .input-area input { flex: 1; background: transparent; border: none; padding: 10px; border-radius: 30px; outline: none; color: var(--text-main); font-weight: 600; }
-        .input-area button { background: var(--pink); border: none; color: white; padding: 10px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; }
-        
-        .empty-msg { text-align: center; color: var(--text-muted); padding: 30px; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // === الثيم واللغة ===
-        const hour = new Date().getHours();
-        if (hour < 6 || hour >= 18) document.body.classList.add('night-theme');
-
-        const userLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
-        const dict = {
-            en: { greeting: "Good Morning", timer: "Focus Timer", tasks: "My Tasks", habits: "Habit Tracker 🌱", add: "Add" },
-            ar: { greeting: "صباح الخير", timer: "مؤقت التركيز", tasks: "مهامي", habits: "تتبع العادات 🌱", add: "إضافة" }
+        // === إعدادات الترجمة ===
+        const translations = {
+            en: {
+                title: "PRODUCTIVE ZEN JOURNAL",
+                namePlaceholder: "Enter your name...",
+                startBtn: "Start Your Journey",
+                stats: ["Total Goals", "Active Projects", "Milestones"],
+                timer: "Focus Timer",
+                start: "Start Cycle",
+                sections: ["Productivity Trackers", "Priority Matrix", "Mood & Wellbeing"]
+            },
+            ar: {
+                title: "مجلة الإنتاجية الهادئة",
+                namePlaceholder: "اكتب اسمك ...",
+                startBtn: "ابدأ رحلتك",
+                stats: ["الأهداف الكلية", "المشاريع النشطة", "الإنجازات"],
+                timer: "مؤقت التركيز",
+                start: "ابدأ الدورة",
+                sections: ["تتبع الإنتاجية", "مصفوفة الأولويات", "المزاج والعافية"]
+            }
         };
-        const t = (key) => dict[userLang][key];
 
         function App() {
-            // المهام
-            const [tasks, setTasks] = React.useState(() => {
-                const saved = localStorage.getItem('plannerTasks');
-                return saved ? JSON.parse(saved) : [];
-            });
-            // العادات
-            const [habits, setHabits] = React.useState(() => {
-                const saved = localStorage.getItem('plannerHabits');
-                return saved ? JSON.parse(saved) : [
-                    { id: 1, name: "💧 شرب الماء", done: false },
-                    { id: 2, name: "📖 القراءة", done: false },
-                    { id: 3, name: "🧘 التأمل", done: false }
-                ];
-            });
-            
-            const [name, setName] = React.useState(localStorage.getItem('userName') || '');
-            const [inputText, setInputText] = React.useState('');
-            const [timer, setTimer] = React.useState(300);
-            const [isRunning, setIsRunning] = React.useState(false);
-            const [userMinutes, setUserMinutes] = React.useState(5);
-            const [liveTime, setLiveTime] = React.useState(new Date());
+            const [userName, setUserName] = React.useState(localStorage.getItem('zenUserName') || '');
+            const [language, setLanguage] = React.useState(localStorage.getItem('zenLang') || 'en');
+            const [isOnboarding, setIsOnboarding] = React.useState(true);
+            const [activeModal, setActiveModal] = React.useState(null);
 
+            // حفظ البيانات عند التغيير
             React.useEffect(() => {
-                localStorage.setItem('userName', name);
-                localStorage.setItem('plannerTasks', JSON.stringify(tasks));
-                localStorage.setItem('plannerHabits', JSON.stringify(habits));
-            }, [name, tasks, habits]);
-
-            React.useEffect(() => {
-                const interval = setInterval(() => setLiveTime(new Date()), 1000);
-                return () => clearInterval(interval);
-            }, []);
-
-            React.useEffect(() => {
-                let interval = null;
-                if (isRunning && timer > 0) {
-                    interval = setInterval(() => setTimer(prev => prev - 1), 1000);
-                } else if (timer === 0 && isRunning) {
-                    setIsRunning(false);
-                    alert("⏰ Time's up!");
-                    setTimer(userMinutes * 60);
+                if(userName && language) {
+                    localStorage.setItem('zenUserName', userName);
+                    localStorage.setItem('zenLang', language);
                 }
-                return () => clearInterval(interval);
-            }, [isRunning, timer]);
+            }, [userName, language]);
 
-            // دوال المهام
-            const addTask = () => {
-                if (inputText.trim() === '') return;
-                setTasks([...tasks, { id: Date.now(), text: inputText, done: false }]);
-                setInputText('');
-            };
-            const toggleDone = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
-            const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
-
-            // دوال العادات
-            const toggleHabit = (id) => {
-                setHabits(habits.map(h => h.id === id ? { ...h, done: !h.done } : h));
+            // عند الضغط على "ابدأ"
+            const handleStart = () => {
+                if(userName.trim()) {
+                    setIsOnboarding(false);
+                }
             };
 
-            // الإحصائيات
-            const totalTasks = tasks.length;
-            const doneTasks = tasks.filter(t => t.done).length;
-            const rate = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
-            const doneHabits = habits.filter(h => h.done).length;
+            const t = (key) => translations[language][key] || key;
 
+            // إذا كانت شاشة البداية ظاهرة
+            if (isOnboarding) {
+                return (
+                    <div className="onboarding-overlay">
+                        <div className="onboarding-box">
+                            <h2>🌸 {t('title')}</h2>
+                            <input 
+                                type="text" 
+                                placeholder={t('namePlaceholder')} 
+                                value={userName} 
+                                onChange={(e) => setUserName(e.target.value)}
+                            />
+                            <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+                                <option value="en">🇬🇧 English</option>
+                                <option value="ar">🇸🇦 العربية</option>
+                            </select>
+                            <button onClick={handleStart}>{t('startBtn')}</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            // لوحة التحكم الرئيسية
             return (
                 <div className="app-container">
-                    <div className="header">
-                        <div>
-                            <h1>🌸 {t('greeting')}</h1>
-                            <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name..." />
-                        </div>
-                        <div className="header-right">
-                            <div className="live-clock">{liveTime.toLocaleTimeString()}</div>
-                            <div className="avatar-icon">🐻</div>
-                        </div>
-                    </div>
-
-                    <div className="stats-row">
-                        <div className="stat-card pink"><div className="emoji">✨</div><div className="value">{rate}%</div>Done</div>
-                        <div className="stat-card"><div className="emoji">📋</div><div className="value">{totalTasks}</div>Tasks</div>
-                        <div className="stat-card"><div className="emoji">✅</div><div className="value">{doneTasks}</div>Completed</div>
-                    </div>
-
-                    <div className="timer-section">
-                        <div>
-                            <div style={{fontSize:'13px', color:'var(--text-muted)'}}>{t('timer')}</div>
-                            <div className="time">{String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}</div>
-                        </div>
-                        <div className="timer-controls">
-                            <input type="number" value={userMinutes} onChange={(e) => {
-                                const val = parseInt(e.target.value);
-                                if (!isNaN(val) && val > 0) {
-                                    setUserMinutes(val);
-                                    setTimer(val * 60);
-                                }
-                            }} min="1" />
-                            <span style={{fontSize:'14px', color:'var(--text-muted)'}}>min</span>
-                            <button className={`btn-timer ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
-                                ▶ {isRunning ? 'Stop' : 'Start'}
-                            </button>
-                        </div>
-                    </div>
-
-                    {/* 🆕 قسم العادات */}
-                    <div className="section-header">{t('habits')} ({doneHabits}/{habits.length})</div>
-                    <div className="habit-grid">
-                        {habits.map(habit => (
-                            <div key={habit.id} className={`habit-item ${habit.done ? 'done' : ''}`} onClick={() => toggleHabit(habit.id)}>
-                                {habit.name}
+                    <div className="gold-frame">
+                        <div className="header">
+                            <div className="header-title">🌸 {userName}'s {t('title')}</div>
+                            <div className="header-right">
+                                <div className="lang-badge">{language === 'en' ? 'EN' : 'عربي'}</div>
+                                <div className="avatar-icon">🐻</div>
                             </div>
-                        ))}
-                    </div>
+                        </div>
 
-                    <div className="section-header">🐣 {t('tasks')}</div>
-                    {tasks.length === 0 ? (
-                        <div className="empty-msg">No tasks yet. Add one below!</div>
-                    ) : (
-                        tasks.map(task => (
-                            <div key={task.id} className={`task-card ${task.done ? 'done' : ''}`}>
-                                <span style={{fontWeight:'600'}}>{task.text}</span>
-                                <div>
-                                    {!task.done && <button className="btn-complete" onClick={() => toggleDone(task.id)}>Mark Done</button>}
-                                    {task.done && <span style={{color:'var(--green)', fontWeight:'bold'}}>✅</span>}
-                                    <button className="btn-del" onClick={() => deleteTask(task.id)}>✕</button>
+                        {/* الإحصائيات */}
+                        <div className="stats-grid">
+                            <div className="stat-item"><div className="icon">🏆</div><div className="val">100%</div><div className="lbl">{t('stats')[0]}</div></div>
+                            <div className="stat-item"><div className="icon">📖</div><div className="val">1</div><div className="lbl">{t('stats')[1]}</div></div>
+                            <div className="stat-item"><div className="icon">🏅</div><div className="val">1</div><div className="lbl">{t('stats')[2]}</div></div>
+                        </div>
+
+                        {/* المؤقت */}
+                        <div className="timer-wrapper">
+                            <div><div style={{fontSize:'12px', color:'var(--text-muted)'}}>{t('timer')}</div><div className="timer-display">05:00</div></div>
+                            <button className="timer-btn">{t('start')}</button>
+                        </div>
+
+                        {/* الأقسام القابلة للضغط */}
+                        <div className="section-title">📊 {t('sections')[0]}</div>
+                        <div className="clickable-card" onClick={() => setActiveModal('trackers')}>
+                            <span>View your focus cycles, habit streaks, and weekly progress</span>
+                            <span className="arrow">🔍</span>
+                        </div>
+
+                        <div className="section-title">📌 {t('sections')[1]}</div>
+                        <div className="clickable-card" onClick={() => setActiveModal('matrix')}>
+                            <span>Organize tasks by urgency and importance</span>
+                            <span className="arrow">🔍</span>
+                        </div>
+
+                        <div className="section-title">🌿 {t('sections')[2]}</div>
+                        <div className="clickable-card" onClick={() => setActiveModal('mood')}>
+                            <span>Track your daily mood and mindfulness moments</span>
+                            <span className="arrow">🔍</span>
+                        </div>
+
+                        {/* نافذة التفاصيل المنبثقة */}
+                        <div className={`detail-modal ${activeModal ? '' : 'hidden'}`} onClick={() => setActiveModal(null)}>
+                            <div className="detail-content" onClick={(e) => e.stopPropagation()}>
+                                <span className="close-btn" onClick={() => setActiveModal(null)}>✕</span>
+                                <h2 style={{color:'var(--purple-main)', marginBottom:'15px'}}>
+                                    {activeModal === 'trackers' ? '📊 Productivity Trackers' :
+                                     activeModal === 'matrix' ? '📌 Priority Matrix' :
+                                     '🌿 Mood & Wellbeing'}
+                                </h2>
+                                <p style={{color:'var(--text-muted)'}}>
+                                    This is where the detailed charts, grids, and interactive tools will appear. 
+                                    You can easily customize this section to fit your personal workflow!
+                                </p>
+                                <div style={{marginTop:'20px', padding:'20px', background:'var(--purple-light)', borderRadius:'15px'}}>
+                                    <span style={{fontWeight:'600', color:'var(--purple-dark)'}}>✨ Interactive Area</span>
+                                    <p style={{fontSize:'13px', marginTop:'5px'}}>This is a preview of the detailed content. The design will be fully interactive once we add the components.</p>
                                 </div>
                             </div>
-                        ))
-                    )}
-
-                    <div className="input-area">
-                        <input value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addTask()} placeholder="Write something cute..." />
-                        <button onClick={addTask}>➕ {t('add')}</button>
+                        </div>
                     </div>
                 </div>
             );
