@@ -17,21 +17,18 @@
             transition: background 2s ease; overflow: hidden;
         }
 
-        /* === الخلفية الحية (الأرض والسماء مفصولة) === */
+        /* === الخلفية الحية === */
         .world-background {
             position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
             z-index: 0; transition: background 3s ease;
         }
-        /* النهار */
         .world-background.day {
             background: linear-gradient(180deg, #87CEEB 0%, #b4e4f7 40%, #7cb342 40.5%, #558b2f 100%);
         }
-        /* الليل */
         .world-background.night {
             background: linear-gradient(180deg, #0b1426 0%, #1A2A44 40%, #1b3a24 40.5%, #0a1a2a 100%);
         }
 
-        /* === الكائنات الحية === */
         .sun { position: absolute; top: 5%; right: 5%; width: 70px; height: 70px; border-radius: 50%; background: radial-gradient(#FFD700, #FF8C00); box-shadow: 0 0 100px #FFD700; transition: 2s; }
         .night .sun { opacity: 0; transform: scale(0.5); }
         
@@ -41,26 +38,22 @@
         .stars { position: absolute; top: 0; left: 0; width: 100%; height: 40%; opacity: 0; transition: 2s; pointer-events: none; background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 40px 70px, #eee, transparent); background-size: 200px 100px; }
         .night .stars { opacity: 1; }
 
-        /* غيوم على شكل ☁️ */
-        .cloud-icon { position: absolute; font-size: 50px; color: rgba(255,255,255,0.9); animation: floatCloud linear infinite; }
+        .cloud-icon { position: absolute; font-size: 40px; color: rgba(255,255,255,0.9); animation: floatCloud linear infinite; }
         .day .cloud-icon { opacity: 1; } .night .cloud-icon { opacity: 0.2; }
         @keyframes floatCloud { 0% { transform: translateX(-10vw); } 100% { transform: translateX(110vw); } }
 
-        /* الأشجار (أضفنا شجرة جميلة) */
-        .tree-container { position: absolute; bottom: 18%; left: 5%; font-size: 80px; opacity: 0.9; transition: 2s; }
+        .tree-container { position: absolute; bottom: 15%; left: 5%; font-size: 80px; opacity: 0.9; transition: 2s; }
         .night .tree-container { opacity: 0.5; }
 
-        /* الورود المبتسمة */
-        .flowers { position: absolute; bottom: 20%; left: 2%; font-size: 30px; animation: sway 4s ease-in-out infinite; }
+        .flowers { position: absolute; bottom: 18%; left: 8%; font-size: 30px; animation: flowerSway 3s ease-in-out infinite; }
         .night .flowers { opacity: 0.4; animation: none; transform: scale(0.9); }
-        @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+        @keyframes flowerSway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
 
-        /* القطة */
-        .cat { position: absolute; bottom: 22%; right: 5%; font-size: 55px; transition: 2s; }
-        .day .cat { animation: jump 2s ease-in-out infinite; }
-        .night .cat { animation: sleep 2s ease-in-out infinite; transform-origin: bottom; }
-        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
-        @keyframes sleep { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg) scale(0.95); } }
+        .cat { position: absolute; bottom: 18%; right: 8%; font-size: 50px; transition: 2s; }
+        .day .cat { animation: catBounce 1.5s cubic-bezier(0.28, 0.84, 0.42, 1) infinite; }
+        .night .cat { animation: catSleep 2s ease-in-out infinite; transform-origin: bottom; }
+        @keyframes catBounce { 0%, 100% { transform: translateY(0); } 40% { transform: translateY(-25px); } }
+        @keyframes catSleep { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg) scale(0.95); } }
 
         /* === الواجهة الزجاجية الذهبية === */
         .glass-container {
@@ -78,20 +71,16 @@
             border-color: rgba(212, 175, 55, 0.3);
         }
 
-        /* === الترحيب === */
         .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
-        .header h2 { font-size: 24px; display: flex; align-items: center; gap: 10px; }
+        .header h2 { font-size: 24px; }
         .name-input { padding: 8px 15px; border-radius: 30px; border: 1px solid rgba(212,175,55,0.3); background: rgba(255,255,255,0.1); color: inherit; outline: none; font-weight: 600; width: 150px; }
 
-        /* الوقت والتاريخ منفصلين */
         .time-date { display: flex; flex-direction: column; align-items: flex-end; font-size: 13px; font-weight: 600; opacity: 0.8; line-height: 1.4; }
 
-        /* === الإحصائيات === */
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
         .stat-card { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px; text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); }
         .stat-card .num { font-size: 24px; font-weight: 700; }
 
-        /* === العداد الدائري === */
         .timer-ring-container { display: flex; justify-content: center; align-items: center; flex-direction: column; margin-bottom: 25px; }
         .timer-ring-wrapper { position: relative; width: 180px; height: 180px; margin-bottom: 10px; }
         .timer-ring-wrapper svg { transform: rotate(-90deg); width: 180px; height: 180px; }
@@ -105,14 +94,12 @@
         .timer-btn { padding: 8px 20px; border-radius: 30px; border: none; background: #F7A1C4; color: white; font-weight: 700; cursor: pointer; }
         .timer-btn.stop { background: #ff6b6b; }
 
-        /* === المهام === */
         .task-grid { display: flex; flex-direction: column; gap: 10px; }
         .task-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 15px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.05); }
         .task-card.done { opacity: 0.7; text-decoration: line-through; }
         .task-actions { display: flex; gap: 5px; }
         .btn-action { border: none; background: transparent; font-size: 18px; cursor: pointer; }
 
-        /* === الاحتفال === */
         .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 9999; pointer-events: none; }
     </style>
 </head>
@@ -123,19 +110,11 @@
         <div class="sun"></div>
         <div class="moon"></div>
         <div class="stars"></div>
-        
-        <!-- غيوم ☁️ -->
         <div class="cloud-icon" style="top: 10%; left: -10%;">☁️</div>
         <div class="cloud-icon" style="top: 25%; left: -15%; animation-duration: 30s; animation-delay: 5s;">☁️</div>
         <div class="cloud-icon" style="top: 15%; left: -20%; animation-duration: 40s; animation-delay: 15s;">☁️</div>
-        
-        <!-- شجرة -->
         <div class="tree-container">🌳</div>
-        
-        <!-- وردتان متمايلتان -->
         <div class="flowers">🌸 🌷</div>
-        
-        <!-- قطة -->
         <div class="cat">🐱</div>
     </div>
 
@@ -143,25 +122,25 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // === 1. الثيم واللغة الحية ===
+        // === اللغة حسب الجهاز ===
         const lang = navigator.language.startsWith('ar') ? 'ar' : 'en';
         const t = (key) => {
             const dict = {
-                en: { 
-                    title: "My Garden Journal", name: "Name...", start: "Start", stop: "Stop", 
-                    add: "Add", done: "Done", tasks: "Tasks", completed: "Done", timer: "min", 
+                en: {
+                    title: "My Garden Journal", name: "Name...", start: "Start", stop: "Stop",
+                    add: "Add", done: "Done", tasks: "Tasks", completed: "Done", timer: "min",
                     placeholder: "Write something cute..."
                 },
-                ar: { 
-                    title: "يوميات حديقتي", name: "اسمك...", start: "ابدأ", stop: "إيقاف", 
-                    add: "إضافة", done: "تم", tasks: "مهام", completed: "مكتملة", timer: "دقيقة", 
+                ar: {
+                    title: "يوميات حديقتي", name: "اسمك...", start: "ابدأ", stop: "إيقاف",
+                    add: "إضافة", done: "تم", tasks: "مهام", completed: "مكتملة", timer: "دقيقة",
                     placeholder: "اكتب شيئاً لطيفاً..."
                 }
             };
             return dict[lang][key] || key;
         };
 
-        // تحديد الوقت الحقيقي لتحديد النهار/الليل
+        // === تحديد الوقت ===
         const checkTime = () => {
             const h = new Date().getHours();
             const worldBg = document.getElementById('worldBg');
@@ -174,7 +153,7 @@
         checkTime();
         setInterval(checkTime, 60000);
 
-        // === 2. التطبيق ===
+        // === مكون React الرئيسي ===
         function App() {
             const [tasks, setTasks] = React.useState(() => JSON.parse(localStorage.getItem('gardenTasks')) || []);
             const [name, setName] = React.useState(localStorage.getItem('gardenName') || '');
@@ -189,13 +168,11 @@
                 localStorage.setItem('gardenName', name);
             }, [tasks, name]);
 
-            // الساعة الحقيقية
             React.useEffect(() => {
                 const i = setInterval(() => setNow(new Date()), 1000);
                 return () => clearInterval(i);
             }, []);
 
-            // العداد
             React.useEffect(() => {
                 let i = null;
                 if (isRunning && timer > 0) {
@@ -289,7 +266,7 @@
             );
         }
 
-        // === 3. الاحتفال ===
+        // === الاحتفال ===
         function launchConfetti() {
             const colors = ['#F7A1C4', '#FCE4EC', '#FFD54F', '#80CBC4', '#B39DDB', '#FFAB91'];
             for (let i = 0; i < 50; i++) {
@@ -304,7 +281,7 @@
                 piece.style.width = `${size}px`;
                 piece.style.height = `${size}px`;
                 document.body.appendChild(piece);
-                
+
                 let startTime = null;
                 const startY = -10;
                 const endY = window.innerHeight + 10;
@@ -326,6 +303,7 @@
             }
         }
 
+        // === تشغيل التطبيق ===
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
