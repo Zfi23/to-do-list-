@@ -4,32 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Planner React</title>
-    <!-- استيراد React و Babel -->
     <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- ألوان التصميم (تماماً كما في الصورة) --- */
+        /* --- متغيرات الألوان الرئيسية --- */
         :root {
-            --bg-color: #FFF3E3;            /* خلفية بيج دافئ */
-            --text-main: #5C4D4D;            /* لون النص الأساسي */
-            --text-muted: #A28F8F;           /* لون النص الفرعي */
-            --pink: #F7A1C4;                /* الوردي الأساسي */
-            --green: #9ED9CC;               /* الأخضر النعناعي */
-            --card-bg: #FFFFFF;             /* لون البطاقات */
+            --bg-color: #FCF6F0; /* بيج دافئ جداً */
+            --text-main: #4D3C3C;
+            --text-muted: #9E8C8C;
+            --pink: #F7A1C4;
+            --dark-pink: #D981A2;
+            --green: #A8D8C8;
+            --brown: #D4BFAE;
+            --card-bg: #FFFFFF;
             --shadow: 0 10px 30px rgba(247, 161, 196, 0.15);
-            --radius: 30px;
         }
 
-        /* --- الثيم الليلي (نفس الألوان لكن أغمق) --- */
         body.night-theme {
             --bg-color: #2D2438;
             --text-main: #E6DFED;
             --text-muted: #A99BB5;
             --pink: #C49AC8;
             --green: #80A89C;
+            --brown: #5C4B6E;
             --card-bg: #3A2C4B;
             --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
@@ -46,120 +46,109 @@
             background: var(--card-bg);
             border-radius: 50px; padding: 30px;
             box-shadow: var(--shadow); 
+            border: 2px solid var(--brown);
         }
 
         /* --- رأس الصفحة --- */
         .header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
         .header h1 { font-size: 26px; font-weight: 700; display: flex; align-items: center; gap: 10px; }
-        .header h1 img { width: 30px; height: 30px; }
-        
-        .name-input { padding: 8px 15px; border-radius: 30px; border: 1px solid #eee; background: #f9f9f9; color: var(--text-main); outline: none; width: 160px; font-weight: 600; }
-        .name-input:focus { border-color: var(--pink); }
-
+        .name-input { padding: 8px 15px; border-radius: 30px; border: 1px solid var(--brown); background: #f9f9f9; color: var(--text-main); outline: none; width: 160px; font-weight: 600; }
         .header-right { display: flex; gap: 15px; align-items: center; }
         .live-clock { background: #f9f9f9; padding: 10px 20px; border-radius: 30px; font-weight: 700; font-size: 14px; }
         .avatar-icon { width: 40px; height: 40px; background: var(--pink); border-radius: 50%; display: flex; justify-content: center; align-items: center; color: white; font-size: 18px; }
 
-        /* --- شريط الإحصائيات --- */
+        /* --- الشريط العلوي --- */
         .stats-row { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        .stat-card { background: #f9f9f9; padding: 15px 20px; border-radius: 30px; flex: 1; min-width: 100px; text-align: center; display: flex; flex-direction: column; justify-content: center; }
+        .stat-card { background: #f9f9f9; padding: 15px 20px; border-radius: 30px; flex: 1; min-width: 100px; text-align: center; }
         .stat-card.pink { background: var(--pink); color: white; }
         .stat-card .emoji { font-size: 24px; margin-bottom: 5px; }
         .stat-card .value { font-size: 22px; font-weight: 700; margin-bottom: 2px; }
-        .stat-card h4 { font-size: 12px; opacity: 0.8; font-weight: 600; }
 
-        /* --- قسم المؤقت --- */
+        /* --- المؤقت --- */
         .timer-section { background: #f9f9f9; padding: 15px 25px; border-radius: 40px; margin-bottom: 25px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 15px; }
-        .timer-section .left { display: flex; flex-direction: column; }
-        .timer-section .lbl { font-size: 13px; color: var(--text-muted); margin-bottom: 3px; }
         .timer-section .time { font-size: 28px; font-weight: 700; color: var(--pink); letter-spacing: 2px; }
-        
         .timer-controls { display: flex; gap: 10px; align-items: center; }
         .timer-controls input { width: 60px; padding: 8px; border-radius: 20px; border: 1px solid #eee; background: white; color: var(--text-main); text-align: center; font-weight: 700; outline: none; }
-        .timer-controls input:focus { border-color: var(--pink); }
-        
-        .btn-timer { padding: 8px 25px; border: none; border-radius: 30px; font-weight: 700; cursor: pointer; background: var(--green); color: white; transition: 0.3s; box-shadow: 0 4px 10px rgba(158, 217, 204, 0.3); }
-        .btn-timer:hover { transform: scale(1.05); }
-        .btn-timer.stop { background: #F7A1C4; box-shadow: 0 4px 10px rgba(247, 161, 196, 0.3); }
+        .btn-timer { padding: 8px 25px; border: none; border-radius: 30px; font-weight: 700; cursor: pointer; background: var(--brown); color: white; transition: 0.3s; }
+        .btn-timer.stop { background: var(--pink); }
 
-        /* --- قسم المهام --- */
-        .section-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 700; font-size: 18px; }
-        .task-grid { display: grid; gap: 15px; }
-        .task-card { background: #f9f9f9; border-radius: 30px; padding: 20px; min-height: 110px; display: flex; flex-direction: column; justify-content: space-between; border: 1px solid transparent; transition: 0.3s; }
-        .task-card:hover { transform: translateY(-5px); border-color: var(--pink); }
-        .task-card.status-completed { border: 1px solid var(--green); background: #f0fdfb; }
-        .task-card h3 { font-size: 16px; font-weight: 700; }
-        .task-card p { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-        .task-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 15px; }
-        .btn-del { background: transparent; border: none; color: #ccc; font-size: 18px; cursor: pointer; transition: 0.3s; }
-        .btn-del:hover { color: #ff6b6b; transform: scale(1.1); }
-        .btn-complete { background: #E8F5E9; color: #66BB6A; border: none; padding: 5px 15px; border-radius: 20px; font-weight: 700; font-size: 12px; cursor: pointer; transition: 0.3s; }
-        .btn-complete:hover { background: #66BB6A; color: white; }
+        /* --- المهام --- */
+        .section-header { font-weight: 700; font-size: 18px; margin: 20px 0 15px 0; }
+        .task-card { background: #f9f9f9; border-radius: 30px; padding: 20px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
+        .task-card.done { border: 1px solid var(--green); background: #f0fdfb; }
+        .btn-complete { background: var(--green); border: none; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-weight: 700; }
+        .btn-del { background: transparent; border: none; color: #ccc; font-size: 18px; cursor: pointer; }
 
-        /* --- حقل الإدخال --- */
-        .input-area { margin-top: 25px; background: #f9f9f9; padding: 15px; border-radius: 50px; display: flex; gap: 10px; border: 1px solid transparent; align-items: center; transition: 0.3s; }
-        .input-area:focus-within { border-color: var(--pink); }
-        .input-area input { flex: 1; background: transparent; border: none; padding: 10px; border-radius: 30px; outline: none; color: var(--text-main); font-weight: 600; }
-        .input-area button { background: var(--pink); border: none; color: white; padding: 10px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; transition: 0.3s; box-shadow: 0 4px 10px rgba(247, 161, 196, 0.3); }
-        .input-area button:hover { transform: scale(1.05); background: #E58AA8; }
-
-        @media (max-width: 600px) {
-            .timer-controls { width: 100%; justify-content: center; margin-top: 10px; }
+        /* --- 🆕 قسم تتبع العادات (Habit Tracker) --- */
+        .habit-grid {
+            display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px;
+            background: #f9f9f9; padding: 20px; border-radius: 30px; justify-content: center;
         }
+        .habit-item {
+            background: white; padding: 10px 15px; border-radius: 30px;
+            border: 1px solid #eee; cursor: pointer; font-weight: 600;
+            transition: 0.2s; display: flex; align-items: center; gap: 8px;
+        }
+        .habit-item.done { background: var(--green); color: white; border-color: var(--green); }
+        .habit-item:hover { transform: scale(1.05); }
+
+        /* --- الإدخال --- */
+        .input-area { margin-top: 25px; background: #f9f9f9; padding: 15px; border-radius: 50px; display: flex; gap: 10px; }
+        .input-area input { flex: 1; background: transparent; border: none; padding: 10px; border-radius: 30px; outline: none; color: var(--text-main); font-weight: 600; }
+        .input-area button { background: var(--pink); border: none; color: white; padding: 10px 25px; border-radius: 30px; font-weight: 700; cursor: pointer; }
+        
+        .empty-msg { text-align: center; color: var(--text-muted); padding: 30px; }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // === 1. الثيم حسب الوقت ===
+        // === الثيم واللغة ===
         const hour = new Date().getHours();
         if (hour < 6 || hour >= 18) document.body.classList.add('night-theme');
 
-        // === 2. اللغة حسب الجهاز ===
         const userLang = navigator.language.startsWith('ar') ? 'ar' : 'en';
         const dict = {
-            en: { 
-                greeting: "Good Morning", placeholder: "Your name", 
-                timer: "Focus Timer", min: "min", start: "Start", stop: "Stop",
-                tasks: "My Tasks", welcome: "Welcome!", welcomeP: "Try adding your own task",
-                add: "Add", done: "Done", completed: "Completed", total: "Total Tasks"
-            },
-            ar: { 
-                greeting: "صباح الخير", placeholder: "اسمك", 
-                timer: "مؤقت التركيز", min: "دقيقة", start: "ابدأ", stop: "إيقاف",
-                tasks: "مهامي", welcome: "أهلاً بك!", welcomeP: "جرب إضافة مهمتك الخاصة",
-                add: "إضافة", done: "تم", completed: "المكتملة", total: "إجمالي المهام"
-            }
+            en: { greeting: "Good Morning", timer: "Focus Timer", tasks: "My Tasks", habits: "Habit Tracker 🌱", add: "Add" },
+            ar: { greeting: "صباح الخير", timer: "مؤقت التركيز", tasks: "مهامي", habits: "تتبع العادات 🌱", add: "إضافة" }
         };
         const t = (key) => dict[userLang][key];
 
-        // === 3. التطبيق الرئيسي (React) ===
         function App() {
-            const [name, setName] = React.useState(localStorage.getItem('userName') || '');
+            // المهام
             const [tasks, setTasks] = React.useState(() => {
                 const saved = localStorage.getItem('plannerTasks');
                 return saved ? JSON.parse(saved) : [];
             });
+            // العادات
+            const [habits, setHabits] = React.useState(() => {
+                const saved = localStorage.getItem('plannerHabits');
+                return saved ? JSON.parse(saved) : [
+                    { id: 1, name: "💧 شرب الماء", done: false },
+                    { id: 2, name: "📖 القراءة", done: false },
+                    { id: 3, name: "🧘 التأمل", done: false }
+                ];
+            });
+            
+            const [name, setName] = React.useState(localStorage.getItem('userName') || '');
             const [inputText, setInputText] = React.useState('');
             const [timer, setTimer] = React.useState(300);
             const [isRunning, setIsRunning] = React.useState(false);
             const [userMinutes, setUserMinutes] = React.useState(5);
             const [liveTime, setLiveTime] = React.useState(new Date());
 
-            // الحفظ التلقائي
             React.useEffect(() => {
                 localStorage.setItem('userName', name);
                 localStorage.setItem('plannerTasks', JSON.stringify(tasks));
-            }, [name, tasks]);
+                localStorage.setItem('plannerHabits', JSON.stringify(habits));
+            }, [name, tasks, habits]);
 
-            // الساعة الحقيقية
             React.useEffect(() => {
                 const interval = setInterval(() => setLiveTime(new Date()), 1000);
                 return () => clearInterval(interval);
             }, []);
 
-            // المؤقت
             React.useEffect(() => {
                 let interval = null;
                 if (isRunning && timer > 0) {
@@ -172,29 +161,32 @@
                 return () => clearInterval(interval);
             }, [isRunning, timer]);
 
+            // دوال المهام
             const addTask = () => {
                 if (inputText.trim() === '') return;
                 setTasks([...tasks, { id: Date.now(), text: inputText, done: false }]);
                 setInputText('');
             };
-
-            const toggleDone = (id) => {
-                setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
-                // (يمكن إضافة Confetti هنا)
-            };
-
+            const toggleDone = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
             const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
 
-            const total = tasks.length;
-            const done = tasks.filter(t => t.done).length;
-            const rate = total === 0 ? 0 : Math.round((done / total) * 100);
+            // دوال العادات
+            const toggleHabit = (id) => {
+                setHabits(habits.map(h => h.id === id ? { ...h, done: !h.done } : h));
+            };
+
+            // الإحصائيات
+            const totalTasks = tasks.length;
+            const doneTasks = tasks.filter(t => t.done).length;
+            const rate = totalTasks === 0 ? 0 : Math.round((doneTasks / totalTasks) * 100);
+            const doneHabits = habits.filter(h => h.done).length;
 
             return (
                 <div className="app-container">
                     <div className="header">
                         <div>
                             <h1>🌸 {t('greeting')}</h1>
-                            <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('placeholder')} />
+                            <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder="Your name..." />
                         </div>
                         <div className="header-right">
                             <div className="live-clock">{liveTime.toLocaleTimeString()}</div>
@@ -203,26 +195,14 @@
                     </div>
 
                     <div className="stats-row">
-                        <div className="stat-card pink">
-                            <div className="emoji">✨</div>
-                            <div className="value">{rate}%</div>
-                            <h4>{t('done')}</h4>
-                        </div>
-                        <div className="stat-card">
-                            <div className="emoji">📋</div>
-                            <div className="value">{total}</div>
-                            <h4>{t('total')}</h4>
-                        </div>
-                        <div className="stat-card">
-                            <div className="emoji">🎯</div>
-                            <div className="value">{done}</div>
-                            <h4>{t('completed')}</h4>
-                        </div>
+                        <div className="stat-card pink"><div className="emoji">✨</div><div className="value">{rate}%</div>Done</div>
+                        <div className="stat-card"><div className="emoji">📋</div><div className="value">{totalTasks}</div>Tasks</div>
+                        <div className="stat-card"><div className="emoji">✅</div><div className="value">{doneTasks}</div>Completed</div>
                     </div>
 
                     <div className="timer-section">
-                        <div className="left">
-                            <div className="lbl">{t('timer')}</div>
+                        <div>
+                            <div style={{fontSize:'13px', color:'var(--text-muted)'}}>{t('timer')}</div>
                             <div className="time">{String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}</div>
                         </div>
                         <div className="timer-controls">
@@ -233,36 +213,38 @@
                                     setTimer(val * 60);
                                 }
                             }} min="1" />
-                            <span>{t('min')}</span>
+                            <span style={{fontSize:'14px', color:'var(--text-muted)'}}>min</span>
                             <button className={`btn-timer ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
-                                ▶ {isRunning ? t('stop') : t('start')}
+                                ▶ {isRunning ? 'Stop' : 'Start'}
                             </button>
                         </div>
                     </div>
 
-                    <div className="section-header">
-                        <span>🐣 {t('tasks')}</span>
+                    {/* 🆕 قسم العادات */}
+                    <div className="section-header">{t('habits')} ({doneHabits}/{habits.length})</div>
+                    <div className="habit-grid">
+                        {habits.map(habit => (
+                            <div key={habit.id} className={`habit-item ${habit.done ? 'done' : ''}`} onClick={() => toggleHabit(habit.id)}>
+                                {habit.name}
+                            </div>
+                        ))}
                     </div>
 
-                    <div className="task-grid">
-                        {tasks.length === 0 ? (
-                            <div className="task-card status-completed">
-                                <div><h3>{t('welcome')}</h3><p>{t('welcomeP')}</p></div>
-                                <div className="task-actions"><span style={{color:'var(--green)', fontWeight:700}}>🎉 Done!</span></div>
-                            </div>
-                        ) : (
-                            tasks.map(task => (
-                                <div key={task.id} className={`task-card ${task.done ? 'status-completed' : ''}`}>
-                                    <div><h3>{task.text}</h3></div>
-                                    <div className="task-actions">
-                                        {!task.done && <button className="btn-complete" onClick={() => toggleDone(task.id)}>Mark Done</button>}
-                                        {task.done && <span style={{color:'var(--green)', fontWeight:700}}>✅ Done</span>}
-                                        <button className="btn-del" onClick={() => deleteTask(task.id)}>✕</button>
-                                    </div>
+                    <div className="section-header">🐣 {t('tasks')}</div>
+                    {tasks.length === 0 ? (
+                        <div className="empty-msg">No tasks yet. Add one below!</div>
+                    ) : (
+                        tasks.map(task => (
+                            <div key={task.id} className={`task-card ${task.done ? 'done' : ''}`}>
+                                <span style={{fontWeight:'600'}}>{task.text}</span>
+                                <div>
+                                    {!task.done && <button className="btn-complete" onClick={() => toggleDone(task.id)}>Mark Done</button>}
+                                    {task.done && <span style={{color:'var(--green)', fontWeight:'bold'}}>✅</span>}
+                                    <button className="btn-del" onClick={() => deleteTask(task.id)}>✕</button>
                                 </div>
-                            ))
-                        )}
-                    </div>
+                            </div>
+                        ))
+                    )}
 
                     <div className="input-area">
                         <input value={inputText} onChange={(e) => setInputText(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addTask()} placeholder="Write something cute..." />
