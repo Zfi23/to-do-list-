@@ -1,252 +1,309 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Zen Productivity Engine</title>
-    <!-- استخدام إصدار React المدمج بشكل مباشر -->
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <title>Garden Zen Journal</title>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-
     <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        * {
-            margin: 0; padding: 0; box-sizing: border-box;
-            font-family: 'Quicksand', sans-serif;
-            transition: 0.2s ease;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Quicksand', sans-serif; }
 
         body {
-            background: #FCF8F2;
-            display: flex; justify-content: center; align-items: center;
-            min-height: 100vh; padding: 20px;
+            min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px;
+            transition: background 2s ease; overflow: hidden;
         }
 
-        /* ===== شاشة التحميل الأولية ===== */
-        #loading-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #FCF8F2; display: flex; justify-content: center; align-items: center;
-            flex-direction: column; z-index: 9999;
+        /* === الخلفية الحية === */
+        .world-background {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0; background-size: cover; background-position: center bottom;
+            transition: background 3s ease;
         }
-        .loader {
-            width: 40px; height: 40px; border: 4px solid #eee;
-            border-top: 4px solid #7E57C2; border-radius: 50%;
-            animation: spin 1s linear infinite;
+        /* النهار */
+        .world-background.day {
+            background: linear-gradient(180deg, #87CEEB 0%, #E0F6FF 30%, #90EE90 60%, #228B22 100%);
         }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
-        #loading-screen h2 { color: #7E57C2; margin-top: 15px; font-size: 18px; }
-
-        /* ===== نافذة الترحيب ===== */
-        .onboarding-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(45, 27, 45, 0.6); backdrop-filter: blur(5px);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-        .onboarding-box {
-            background: white; padding: 40px; border-radius: 30px;
-            max-width: 400px; width: 90%; text-align: center;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
-        }
-        .onboarding-box h2 { color: #5E35B1; margin-bottom: 10px; }
-        .onboarding-box input, .onboarding-box select {
-            width: 100%; padding: 12px; border-radius: 15px;
-            border: 1px solid #ddd; margin: 10px 0; outline: none; font-weight: 600;
-        }
-        .onboarding-box button {
-            width: 100%; padding: 12px; background: #7E57C2; color: white;
-            border: none; border-radius: 15px; font-weight: 700; cursor: pointer;
+        /* الليل */
+        .world-background.night {
+            background: linear-gradient(180deg, #0b1426 0%, #1A2A44 50%, #0a1a2a 100%);
         }
 
-        /* ===== الإطار الرئيسي ===== */
-        .app-container { max-width: 800px; width: 100%; }
-        .gold-frame {
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
+        /* === الكائنات الحية === */
+        .sun { position: absolute; top: 5%; right: 5%; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(#FFD700, #FF8C00); box-shadow: 0 0 100px #FFD700; transition: 2s; }
+        .night .sun { opacity: 0; transform: scale(0.5); }
+        
+        .moon { position: absolute; top: 5%; right: 5%; width: 60px; height: 60px; border-radius: 50%; background: #F5F5DC; box-shadow: 0 0 50px rgba(255, 255, 224, 0.3); opacity: 0; transition: 2s; }
+        .night .moon { opacity: 1; }
+
+        .cloud { position: absolute; background: rgba(255,255,255,0.6); border-radius: 50px; animation: floatCloud linear infinite; }
+        .day .cloud { opacity: 1; } .night .cloud { opacity: 0.1; }
+        @keyframes floatCloud { 0% { transform: translateX(-10vw); } 100% { transform: translateX(110vw); } }
+
+        .flowers { position: absolute; bottom: 10px; left: 10px; font-size: 40px; animation: sway 4s ease-in-out infinite; }
+        .night .flowers { opacity: 0.4; animation: none; transform: scale(0.9); }
+        @keyframes sway { 0%, 100% { transform: rotate(-5deg); } 50% { transform: rotate(5deg); } }
+
+        .cat { position: absolute; bottom: 30px; right: 30px; font-size: 50px; transition: 2s; }
+        .day .cat { animation: jump 2s ease-in-out infinite; }
+        .night .cat { animation: sleep 2s ease-in-out infinite; transform-origin: bottom; }
+        @keyframes jump { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+        @keyframes sleep { 0%, 100% { transform: rotate(0deg); } 50% { transform: rotate(-10deg) scale(0.95); } }
+
+        .stars { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; transition: 2s; pointer-events: none; background-image: radial-gradient(2px 2px at 20px 30px, #fff, transparent), radial-gradient(2px 2px at 40px 70px, #eee, transparent); background-size: 200px 100px; }
+        .night .stars { opacity: 1; }
+
+        /* === الواجهة الزجاجية الذهبية === */
+        .glass-container {
+            position: relative; z-index: 1; max-width: 850px; width: 100%;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            /* الإطار الذهبي الساحر */
+            border: 3px solid rgba(212, 175, 55, 0.6);
+            box-shadow: 0 0 20px rgba(212, 175, 55, 0.2), inset 0 0 20px rgba(212, 175, 55, 0.05);
             border-radius: 40px; padding: 30px;
-            box-shadow: 0 10px 30px rgba(126, 87, 194, 0.1);
-            border: 2px solid #D4AF37;
+            color: #2D1B2D;
+        }
+        .night .glass-container {
+            background: rgba(10, 8, 20, 0.25);
+            color: #E6DFED;
+            border-color: rgba(212, 175, 55, 0.4);
         }
 
-        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .header h2 { font-size: 22px; color: #5E35B1; }
-        .header .avatar { background: #7E57C2; color: white; padding: 8px 16px; border-radius: 30px; }
+        /* === الترحيب === */
+        .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; }
+        .header h2 { font-size: 24px; display: flex; align-items: center; gap: 10px; }
+        .name-input { padding: 8px 15px; border-radius: 30px; border: 1px solid rgba(212,175,55,0.3); background: rgba(255,255,255,0.2); color: inherit; outline: none; font-weight: 600; width: 150px; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0; }
-        .stat-card { background: rgba(255,255,255,0.5); border-radius: 20px; padding: 15px; text-align: center; border: 1px solid rgba(0,0,0,0.05); }
-        .stat-card .num { font-size: 24px; font-weight: 700; color: #7E57C2; }
+        /* === الإحصائيات === */
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 15px; text-align: center; backdrop-filter: blur(5px); border: 1px solid rgba(255,255,255,0.05); }
+        .stat-card .num { font-size: 24px; font-weight: 700; }
 
-        .task-input-area { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 20px; }
-        .task-input-area input { flex: 1; padding: 12px; border-radius: 15px; border: 1px solid #ddd; outline: none; min-width: 150px; }
-        .task-input-area select { padding: 12px; border-radius: 15px; border: 1px solid #ddd; }
-        .task-input-area button { background: #7E57C2; color: white; border: none; padding: 12px 20px; border-radius: 15px; cursor: pointer; }
-
-        .task-list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 30px; }
-        .task-item { background: white; border-radius: 15px; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-left: 5px solid #ccc; }
-        .task-item.urgent { border-left-color: #E57373; }
-        .task-item.important { border-left-color: #FFB74D; }
-        .task-item.normal { border-left-color: #81C784; }
-
-        .mood-section { background: rgba(255,255,255,0.4); border-radius: 20px; padding: 20px; border: 1px solid rgba(0,0,0,0.05); }
-        .mood-grid { display: flex; gap: 10px; flex-wrap: wrap; margin: 10px 0; }
-        .mood-btn { border: none; background: transparent; font-size: 28px; cursor: pointer; padding: 5px; border-radius: 50%; }
-        .mood-btn.selected { background: #EDE7F6; }
-        .mood-section textarea { width: 100%; padding: 10px; border-radius: 15px; border: 1px solid #ddd; outline: none; margin-top: 10px; font-family: 'Quicksand', sans-serif; }
-
-        @media (max-width: 600px) {
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .task-input-area { flex-direction: column; }
+        /* === العداد الدائري === */
+        .timer-ring-container {
+            display: flex; justify-content: center; align-items: center; flex-direction: column; margin-bottom: 25px;
         }
+        .timer-ring-wrapper { position: relative; width: 180px; height: 180px; margin-bottom: 10px; }
+        .timer-ring-wrapper svg { transform: rotate(-90deg); width: 180px; height: 180px; }
+        .timer-ring-wrapper circle { fill: none; stroke-width: 10; stroke-linecap: round; }
+        .timer-bg { stroke: rgba(255,255,255,0.15); }
+        .timer-progress { stroke: #F7A1C4; transition: stroke-dashoffset 0.5s ease; }
+        .timer-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 32px; font-weight: 700; }
+        
+        .timer-controls { display: flex; align-items: center; gap: 10px; }
+        .timer-input { width: 50px; padding: 8px; border-radius: 20px; border: 1px solid rgba(212,175,55,0.3); background: rgba(255,255,255,0.2); color: inherit; text-align: center; font-weight: 700; outline: none; }
+        .timer-btn { padding: 8px 20px; border-radius: 30px; border: none; background: #F7A1C4; color: white; font-weight: 700; cursor: pointer; }
+        .timer-btn.stop { background: #ff6b6b; }
+
+        /* === المهام === */
+        .task-grid { display: flex; flex-direction: column; gap: 10px; }
+        .task-card { display: flex; justify-content: space-between; align-items: center; padding: 15px; border-radius: 15px; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.05); }
+        .task-card.done { opacity: 0.7; text-decoration: line-through; }
+        .task-actions { display: flex; gap: 5px; }
+        .btn-action { border: none; background: transparent; font-size: 18px; cursor: pointer; }
+
+        /* === الاحتفال === */
+        .confetti-piece { position: fixed; width: 10px; height: 10px; top: -10px; z-index: 9999; pointer-events: none; }
     </style>
 </head>
 <body>
 
-    <!-- شاشة التحميل -->
-    <div id="loading-screen">
-        <div class="loader"></div>
-        <h2>Loading Your Workspace...</h2>
+    <!-- خلفية العالم الحي -->
+    <div class="world-background" id="worldBg">
+        <div class="sun"></div>
+        <div class="moon"></div>
+        <div class="stars"></div>
+        <div class="cloud" style="top: 10%; width: 100px; height: 40px; animation-duration: 25s;"></div>
+        <div class="cloud" style="top: 30%; width: 150px; height: 50px; animation-duration: 35s; animation-delay: 10s;"></div>
+        <div class="cloud" style="top: 50%; width: 80px; height: 30px; animation-duration: 20s; animation-delay: 5s;"></div>
+        <div class="flowers">🌸 🌷 🌸</div>
+        <div class="cat">🐱</div>
     </div>
 
-    <!-- مكان تطبيق React -->
+    <!-- واجهة التطبيق -->
     <div id="root"></div>
 
     <script type="text/babel">
-        // === إخفاء شاشة التحميل بمجرد أن يبدأ التطبيق ===
-        setTimeout(() => {
-            document.getElementById('loading-screen').style.display = 'none';
-        }, 500);
-
-        // === 1. اللغة ===
+        // === 1. الثيم واللغة الحية ===
         const lang = navigator.language.startsWith('ar') ? 'ar' : 'en';
         const t = (key) => {
             const dict = {
-                en: { 
-                    title: "My Productivity Zen", start: "Start", name: "Enter your name...", 
-                    mood: "How are you feeling?", note: "Write your thoughts...", save: "Save Mood", 
-                    add: "Add Task", urgent: "Urgent", important: "Important", normal: "Normal",
-                    stats: ["Tasks", "Done", "Happy", "Moods"]
-                },
-                ar: { 
-                    title: "رحلتي الإنتاجية", start: "ابدأ", name: "اكتب اسمك...", 
-                    mood: "كيف تشعر اليوم؟", note: "اكتب أفكارك...", save: "حفظ المزاج", 
-                    add: "إضافة مهمة", urgent: "عاجل", important: "مهم", normal: "عادي",
-                    stats: ["مهام", "مكتملة", "سعادة", "مزاج"]
-                }
+                en: { title: "My Garden Journal", name: "Name...", start: "Start", stop: "Stop", add: "Add", done: "Done", tasks: "Tasks", completed: "Done", timer: "min" },
+                ar: { title: "يوميات حديقتي", name: "اسمك...", start: "ابدأ", stop: "إيقاف", add: "إضافة", done: "تم", tasks: "مهام", completed: "مكتملة", timer: "دقيقة" }
             };
             return dict[lang][key] || key;
         };
 
-        // === 2. مكون التطبيق ===
+        // تحديد الوقت الحقيقي لتحديد النهار/الليل
+        const checkTime = () => {
+            const h = new Date().getHours();
+            const worldBg = document.getElementById('worldBg');
+            if (h >= 6 && h < 18) {
+                worldBg.className = 'world-background day';
+            } else {
+                worldBg.className = 'world-background night';
+            }
+        };
+        checkTime();
+        setInterval(checkTime, 60000); // تحديث كل دقيقة
+
+        // === 2. التطبيق ===
         function App() {
-            const [userName, setUserName] = React.useState(localStorage.getItem('zenUser') || '');
-            const [isOnboarding, setIsOnboarding] = React.useState(!localStorage.getItem('zenUser'));
+            const [tasks, setTasks] = React.useState(() => JSON.parse(localStorage.getItem('gardenTasks')) || []);
+            const [name, setName] = React.useState(localStorage.getItem('gardenName') || '');
+            const [input, setInput] = React.useState('');
+            const [timer, setTimer] = React.useState(300);
+            const [isRunning, setIsRunning] = React.useState(false);
+            const [userMins, setUserMins] = React.useState(5);
+            const [now, setNow] = React.useState(new Date());
 
-            const [tasks, setTasks] = React.useState(JSON.parse(localStorage.getItem('zenTasks')) || []);
-            const [moods, setMoods] = React.useState(JSON.parse(localStorage.getItem('zenMoods')) || []);
-            
-            const [newTask, setNewTask] = React.useState('');
-            const [priority, setPriority] = React.useState('normal');
-            const [currentMood, setCurrentMood] = React.useState('');
-            const [moodNote, setMoodNote] = React.useState('');
-
-            // حفظ البيانات
             React.useEffect(() => {
-                localStorage.setItem('zenUser', userName);
-                localStorage.setItem('zenTasks', JSON.stringify(tasks));
-                localStorage.setItem('zenMoods', JSON.stringify(moods));
-            }, [userName, tasks, moods]);
+                localStorage.setItem('gardenTasks', JSON.stringify(tasks));
+                localStorage.setItem('gardenName', name);
+            }, [tasks, name]);
+
+            // الساعة الحقيقية
+            React.useEffect(() => {
+                const i = setInterval(() => setNow(new Date()), 1000);
+                return () => clearInterval(i);
+            }, []);
+
+            // العداد
+            React.useEffect(() => {
+                let i = null;
+                if (isRunning && timer > 0) {
+                    i = setInterval(() => setTimer(prev => prev - 1), 1000);
+                } else if (timer === 0 && isRunning) {
+                    setIsRunning(false);
+                    setTimer(userMins * 60);
+                }
+                return () => clearInterval(i);
+            }, [isRunning, timer]);
+
+            const circumference = 2 * Math.PI * 75;
+            const progress = ((userMins * 60 - timer) / (userMins * 60)) * circumference;
 
             // دوال المهام
             const addTask = () => {
-                if(!newTask.trim()) return;
-                setTasks([{ id: Date.now(), text: newTask, priority, done: false }, ...tasks]);
-                setNewTask('');
+                if (!input.trim()) return;
+                setTasks([...tasks, { id: Date.now(), text: input, done: false }]);
+                setInput('');
             };
-            const toggleDone = (id) => setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
+
+            const toggleDone = (id) => {
+                const task = tasks.find(t => t.id === id);
+                if (task && !task.done) launchConfetti();
+                setTasks(tasks.map(t => t.id === id ? { ...t, done: !t.done } : t));
+            };
+
             const deleteTask = (id) => setTasks(tasks.filter(t => t.id !== id));
 
-            // دوال المزاج
-            const saveMood = () => {
-                if(!currentMood) return;
-                setMoods([{ id: Date.now(), mood: currentMood, note: moodNote, date: new Date().toLocaleDateString() }, ...moods]);
-                setCurrentMood('');
-                setMoodNote('');
-            };
-
-            // الإحصائيات
             const total = tasks.length;
             const done = tasks.filter(t => t.done).length;
-            const happyMoods = moods.filter(m => m.mood === '😊' || m.mood === '🥰').length;
-            const happyPct = moods.length > 0 ? Math.round((happyMoods / moods.length) * 100) : 0;
-
-            // شاشة البداية
-            if(isOnboarding) {
-                return (
-                    <div className="onboarding-overlay">
-                        <div className="onboarding-box">
-                            <h2>🌸 {t('title')}</h2>
-                            <input type="text" placeholder={t('name')} value={userName} onChange={(e) => setUserName(e.target.value)} />
-                            <button onClick={() => { if(userName.trim()) setIsOnboarding(false); }}>{t('start')}</button>
-                        </div>
-                    </div>
-                );
-            }
+            const rate = total === 0 ? 0 : Math.round((done / total) * 100);
 
             return (
-                <div className="app-container">
-                    <div className="gold-frame">
-                        <div className="header">
-                            <h2>🌸 {userName}'s {t('title')}</h2>
-                            <div className="avatar">{lang === 'en' ? '🇬🇧 EN' : '🇸🇦 عربي'}</div>
+                <div className="glass-container">
+                    <div className="header">
+                        <h2>🌸 {t('title')}, <input className="name-input" value={name} onChange={(e) => setName(e.target.value)} placeholder={t('name')} /></h2>
+                        <div style={{fontSize:'14px', fontWeight:'bold', opacity:0.7}}>
+                            {now.toLocaleTimeString()} <br/> {now.toLocaleDateString()}
                         </div>
+                    </div>
 
-                        <div className="stats-grid">
-                            <div className="stat-card"><div className="num">{total}</div>{t('stats')[0]}</div>
-                            <div className="stat-card"><div className="num">{done}</div>{t('stats')[1]}</div>
-                            <div className="stat-card"><div className="num">{happyPct}%</div>{t('stats')[2]}</div>
-                            <div className="stat-card"><div className="num">{moods.length}</div>{t('stats')[3]}</div>
-                        </div>
+                    <div className="stats-grid">
+                        <div className="stat-card"><div className="num">{rate}%</div>{t('done')}</div>
+                        <div className="stat-card"><div className="num">{total}</div>{t('tasks')}</div>
+                        <div className="stat-card"><div className="num">{done}</div>{t('completed')}</div>
+                    </div>
 
-                        <div className="task-input-area">
-                            <input type="text" value={newTask} onChange={(e) => setNewTask(e.target.value)} placeholder="Write a task..." onKeyDown={(e) => e.key === 'Enter' && addTask()} />
-                            <select value={priority} onChange={(e) => setPriority(e.target.value)}>
-                                <option value="urgent">⚡ {t('urgent')}</option>
-                                <option value="important">⭐ {t('important')}</option>
-                                <option value="normal">📌 {t('normal')}</option>
-                            </select>
-                            <button onClick={addTask}>➕ {t('add')}</button>
-                        </div>
-
-                        <div className="task-list">
-                            {tasks.length === 0 && <div style={{textAlign:'center', color:'#aaa'}}>No tasks yet!</div>}
-                            {tasks.map(task => (
-                                <div key={task.id} className={`task-item ${task.priority}`}>
-                                    <span style={{textDecoration: task.done ? 'line-through' : 'none'}}>{task.text}</span>
-                                    <div>
-                                        <button onClick={() => toggleDone(task.id)}>✅</button>
-                                        <button onClick={() => deleteTask(task.id)} style={{border:'none', background:'transparent', cursor:'pointer'}}>🗑️</button>
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="mood-section">
-                            <h3>🌿 {t('mood')}</h3>
-                            <div className="mood-grid">
-                                {['😊','🥰','😐','😔','😢','😡'].map(e => (
-                                    <button key={e} className={`mood-btn ${currentMood === e ? 'selected' : ''}`} onClick={() => setCurrentMood(e)}>{e}</button>
-                                ))}
+                    <div className="timer-ring-container">
+                        <div className="timer-ring-wrapper">
+                            <svg viewBox="0 0 180 180">
+                                <circle className="timer-bg" cx="90" cy="90" r="75"></circle>
+                                <circle className="timer-progress" cx="90" cy="90" r="75" 
+                                    strokeDasharray={circumference} strokeDashoffset={circumference - progress}
+                                    style={{ stroke: isRunning ? '#F7A1C4' : '#E8D5F5' }}></circle>
+                            </svg>
+                            <div className="timer-text">
+                                {String(Math.floor(timer/60)).padStart(2,'0')}:{String(timer%60).padStart(2,'0')}
                             </div>
-                            <textarea rows="2" placeholder={t('note')} value={moodNote} onChange={(e) => setMoodNote(e.target.value)}></textarea>
-                            <button onClick={saveMood} style={{marginTop:'10px', padding:'10px 20px', background:'#7E57C2', color:'white', border:'none', borderRadius:'15px', cursor:'pointer', fontWeight:'bold'}}>{t('save')}</button>
                         </div>
+                        <div className="timer-controls">
+                            <input className="timer-input" type="number" value={userMins} onChange={(e) => {
+                                const v = parseInt(e.target.value);
+                                if (v > 0) { setUserMins(v); setTimer(v * 60); }
+                            }} min="1" />
+                            <span>{t('timer')}</span>
+                            <button className={`timer-btn ${isRunning ? 'stop' : ''}`} onClick={() => setIsRunning(!isRunning)}>
+                                {isRunning ? t('stop') : t('start')}
+                            </button>
+                        </div>
+                    </div>
+
+                    <div className="task-grid">
+                        {tasks.length === 0 && <div style={{textAlign:'center', opacity:0.7, padding:'20px'}}>🌸 Write a new task...</div>}
+                        {tasks.map(task => (
+                            <div key={task.id} className={`task-card ${task.done ? 'done' : ''}`}>
+                                <span>{task.text}</span>
+                                <div className="task-actions">
+                                    <button className="btn-action" onClick={() => toggleDone(task.id)}>{task.done ? '↩️' : '✅'}</button>
+                                    <button className="btn-action" onClick={() => deleteTask(task.id)}>✕</button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div style={{display:'flex', gap:'10px', marginTop:'25px'}}>
+                        <input style={{flex:1, padding:'12px', borderRadius:'30px', border:'1px solid rgba(212,175,55,0.3)', background:'rgba(255,255,255,0.2)', color:'inherit', outline:'none'}} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && addTask()} placeholder="Write something cute..." />
+                        <button style={{background:'#F7A1C4', color:'white', border:'none', padding:'12px 25px', borderRadius:'30px', fontWeight:'700', cursor:'pointer'}} onClick={addTask}>➕ {t('add')}</button>
                     </div>
                 </div>
             );
         }
 
-        // === 3. تشغيل التطبيق ===
+        // === 3. الاحتفال ===
+        function launchConfetti() {
+            const colors = ['#F7A1C4', '#FCE4EC', '#FFD54F', '#80CBC4', '#B39DDB', '#FFAB91'];
+            for (let i = 0; i < 50; i++) {
+                const piece = document.createElement('div');
+                const color = colors[Math.floor(Math.random() * colors.length)];
+                const left = Math.random() * 100;
+                const size = Math.random() * 8 + 6;
+                const shape = Math.random() > 0.5 ? 'circle' : 'square';
+                piece.className = `confetti-piece ${shape}`;
+                piece.style.left = `${left}vw`;
+                piece.style.backgroundColor = color;
+                piece.style.width = `${size}px`;
+                piece.style.height = `${size}px`;
+                document.body.appendChild(piece);
+                
+                let startTime = null;
+                const startY = -10;
+                const endY = window.innerHeight + 10;
+                const wobbleX = (Math.random() - 0.5) * 300;
+                const duration = Math.random() * 2 + 2;
+                const rotation = Math.random() * 720;
+
+                function animatePiece(time) {
+                    if (startTime === null) startTime = time;
+                    const progress = (time - startTime) / (duration * 1000);
+                    if (progress >= 1) { piece.remove(); return; }
+                    const y = startY + (endY - startY) * progress;
+                    const x = wobbleX * Math.sin(progress * 10);
+                    piece.style.transform = `translate(${x}px, ${y}px) rotate(${rotation * progress}deg)`;
+                    piece.style.opacity = 1 - (progress * 0.8);
+                    requestAnimationFrame(animatePiece);
+                }
+                setTimeout(() => requestAnimationFrame(animatePiece), Math.random() * 500);
+            }
+        }
+
         const root = ReactDOM.createRoot(document.getElementById('root'));
         root.render(<App />);
     </script>
