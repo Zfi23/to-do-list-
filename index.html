@@ -8,41 +8,118 @@
     <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background: #f4f7f6; display: flex; justify-content: center; padding: 40px; }
-        .app-container { max-width: 500px; width: 100%; background: white; padding: 25px; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
-        h1 { text-align: center; color: #333; margin-bottom: 20px; }
-        .input-area { display: flex; gap: 10px; margin-bottom: 20px; }
-        .input-area input { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; outline: none; }
-        .input-area input:focus { border-color: #6C63FF; }
-        .input-area button { padding: 10px 20px; background: #6C63FF; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        .task-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: #f9f9f9; border-radius: 8px; margin-bottom: 10px; }
-        .task-item.completed span { text-decoration: line-through; opacity: 0.6; }
-        .delete-btn { background: #ff6b6b; color: white; border: none; padding: 5px 10px; border-radius: 5px; cursor: pointer; margin-left: 10px; }
-        .empty-msg { text-align: center; color: #888; padding: 20px; }
+        /* --- إعادة التصميم الأنيق --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Poppins', sans-serif; }
+
+        body {
+            /* خلفية كريمية ناعمة */
+            background: linear-gradient(135deg, #F9F6F0 0%, #F0EBE3 100%);
+            min-height: 100vh;
+            display: flex; justify-content: center; padding: 40px 20px;
+        }
+
+        .app-container {
+            max-width: 500px; width: 100%;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(15px);
+            border-radius: 30px; padding: 30px;
+            box-shadow: 0 10px 40px rgba(91, 74, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h1 {
+            text-align: center; color: #5B4AFF; font-size: 26px;
+            margin-bottom: 25px; font-weight: 600; letter-spacing: 1px;
+        }
+
+        .input-area {
+            display: flex; gap: 12px; margin-bottom: 30px;
+        }
+
+        .input-area input {
+            flex: 1; padding: 14px 20px;
+            border: 2px solid rgba(91, 74, 255, 0.2);
+            border-radius: 50px; outline: none;
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(5px);
+            font-size: 14px; transition: 0.3s;
+        }
+
+        .input-area input:focus {
+            border-color: #5B4AFF;
+            background: rgba(255, 255, 255, 0.95);
+            box-shadow: 0 0 15px rgba(91, 74, 255, 0.1);
+        }
+
+        .input-area button {
+            padding: 14px 30px;
+            background: #5B4AFF; color: white;
+            border: none; border-radius: 50px;
+            cursor: pointer; font-weight: 600; font-size: 14px;
+            transition: 0.3s; box-shadow: 0 4px 15px rgba(91, 74, 255, 0.3);
+        }
+
+        .input-area button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(91, 74, 255, 0.4);
+        }
+
+        .task-list { display: flex; flex-direction: column; gap: 12px; }
+
+        .task-item {
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 16px 20px; background: #FFFFFF;
+            border-radius: 16px;
+            box-shadow: 0 4px 15px rgba(91, 74, 255, 0.06);
+            transition: 0.2s; border: 1px solid rgba(0,0,0,0.03);
+        }
+
+        .task-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(91, 74, 255, 0.1);
+        }
+
+        .task-item span {
+            cursor: pointer; font-size: 15px; color: #333;
+            display: flex; align-items: center; gap: 10px;
+        }
+
+        .task-item.completed span {
+            text-decoration: line-through; opacity: 0.6; color: #888;
+        }
+
+        .delete-btn {
+            background: transparent; border: none; color: #ff6b6b;
+            font-size: 18px; cursor: pointer; padding: 5px;
+            transition: 0.2s;
+        }
+
+        .delete-btn:hover {
+            transform: scale(1.2); color: #d63031;
+        }
+
+        .empty-msg {
+            text-align: center; color: #888; padding: 30px 0; font-size: 14px;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        // هذا هو كود React الخاص بنا
+        // كود React
         function App() {
-            // نستخدم useState لتخزين المهام
             const [tasks, setTasks] = React.useState([
                 { id: 1, text: 'تعلم React', completed: true },
                 { id: 2, text: 'بناء تطبيق To-Do', completed: false }
             ]);
-
-            // تخزين النص المكتوب في حقل الإدخال
             const [inputText, setInputText] = React.useState('');
 
-            // دوال التفاعل
             const addTask = () => {
                 if (inputText.trim() === '') return;
                 const newTask = { id: Date.now(), text: inputText, completed: false };
-                setTasks([...tasks, newTask]); // إضافة للمصفوفة
-                setInputText(''); // مسح الحقل
+                setTasks([...tasks, newTask]);
+                setInputText('');
             };
 
             const deleteTask = (id) => {
@@ -55,10 +132,9 @@
                 ));
             };
 
-            // عرض واجهة المستخدم
             return (
                 <div className="app-container">
-                    <h1>📝 React To-Do</h1>
+                    <h1>✨ React Planner</h1>
                     
                     <div className="input-area">
                         <input 
@@ -66,23 +142,23 @@
                             value={inputText} 
                             onChange={(e) => setInputText(e.target.value)}
                             onKeyDown={(e) => e.key === 'Enter' && addTask()}
-                            placeholder="أضف مهمة جديدة..."
+                            placeholder="اكتب مهمة جديدة..."
                         />
-                        <button onClick={addTask}>إضافة</button>
+                        <button onClick={addTask}>➕ أضف</button>
                     </div>
 
                     <div className="task-list">
                         {tasks.length === 0 ? (
-                            <p className="empty-msg">لا توجد مهام بعد...</p>
+                            <p className="empty-msg">🎉 لا توجد مهام! أضف مهمة جديدة.</p>
                         ) : (
                             tasks.map(task => (
                                 <div key={task.id} className={`task-item ${task.completed ? 'completed' : ''}`}>
-                                    <span onClick={() => toggleComplete(task.id)} style={{cursor: 'pointer'}}>
+                                    <span onClick={() => toggleComplete(task.id)}>
                                         {task.completed ? '✅' : '⬜'} {task.text}
                                     </span>
-                                    <div>
-                                        <button className="delete-btn" onClick={() => deleteTask(task.id)}>حذف</button>
-                                    </div>
+                                    <button className="delete-btn" onClick={() => deleteTask(task.id)}>
+                                        ✕
+                                    </button>
                                 </div>
                             ))
                         )}
